@@ -1,0 +1,92 @@
+mul_q31: a = 20000001, b = 79bc384d, res = f37870a19bc384d, result = 1e6f0e14
+mul_q31: a = 20000002, b = 79bc384d, res = f37870a9378709a, result = 1e6f0e15
+mul_q31: a = 20000003, b = 4b3c8c12, res = 967918321b5a436, result = 12cf2306
+mul_q31: a = 20000004, b = 0, res = 0, result = 0
+mul_q31: a = 20000001, b = 4b3c8c12, res = 96791828b3c8c12, result = 12cf2305
+mul_q31: a = 20000002, b = 79bc384d, res = f37870a9378709a, result = 1e6f0e15
+mul_q31: a = 20000003, b = 79bc384d, res = f37870b0d34a8e7, result = 1e6f0e16
+mul_q31: a = 20000004, b = 4b3c8c12, res = 96791836cf23048, result = 12cf2306
+mul_q31: a = 20000001, b = 0, res = 0, result = 0
+mul_q31: a = 20000002, b = 4b3c8c12, res = 9679182d6791824, result = 12cf2305
+mul_q31: a = 20000003, b = 79bc384d, res = f37870b0d34a8e7, result = 1e6f0e16
+mul_q31: a = 20000004, b = 79bc384d, res = f37870b86f0e134, result = 1e6f0e17
+mul_q31: a = 20000001, b = b4c373ee, res = f6986e7d74c373ee, result = ffffffffed30dcfa
+mul_q31: a = 20000002, b = 0, res = 0, result = 0
+mul_q31: a = 20000003, b = 4b3c8c12, res = 967918321b5a436, result = 12cf2306
+mul_q31: a = 20000004, b = 79bc384d, res = f37870b86f0e134, result = 1e6f0e17
+mul_q31: a = 20000001, b = 8643c7b3, res = f0c878f5e643c7b3, result = ffffffffe190f1eb
+mul_q31: a = 20000002, b = b4c373ee, res = f6986e7d2986e7dc, result = ffffffffed30dcfa
+mul_q31: a = 20000003, b = 0, res = 0, result = 0
+mul_q31: a = 20000004, b = 4b3c8c12, res = 96791836cf23048, result = 12cf2306
+mul_q31: a = 20000001, b = 8643c7b3, res = f0c878f5e643c7b3, result = ffffffffe190f1eb
+mul_q31: a = 20000002, b = 8643c7b3, res = f0c878f56c878f66, result = ffffffffe190f1ea
+mul_q31: a = 20000003, b = b4c373ee, res = f6986e7cde4a5bca, result = ffffffffed30dcf9
+mul_q31: a = 20000004, b = 0, res = 0, result = 0
+mul_q31: a = 20000001, b = b4c373ee, res = f6986e7d74c373ee, result = ffffffffed30dcfa
+mul_q31: a = 20000002, b = 8643c7b3, res = f0c878f56c878f66, result = ffffffffe190f1ea
+mul_q31: a = 20000003, b = 8643c7b3, res = f0c878f4f2cb5719, result = ffffffffe190f1e9
+mul_q31: a = 20000004, b = b4c373ee, res = f6986e7c930dcfb8, result = ffffffffed30dcf9
+mul_q31: a = 20000001, b = 0, res = 0, result = 0
+mul_q31: a = 20000002, b = b4c373ee, res = f6986e7d2986e7dc, result = ffffffffed30dcfa
+mul_q31: a = 20000003, b = 8643c7b3, res = f0c878f4f2cb5719, result = ffffffffe190f1e9
+mul_q31: a = 20000004, b = 8643c7b3, res = f0c878f4790f1ecc, result = ffffffffe190f1e8
+mul_q31: a = 20000001, b = 4b3c8c12, res = 96791828b3c8c12, result = 12cf2305
+mul_q31: a = 20000002, b = 0, res = 0, result = 0
+mul_q31: a = 20000003, b = b4c373ee, res = f6986e7cde4a5bca, result = ffffffffed30dcf9
+mul_q31: a = 20000004, b = 8643c7b3, res = f0c878f4790f1ecc, result = ffffffffe190f1e8
+mul_q31: a = 20000001, b = 79bc384d, res = f37870a19bc384d, result = 1e6f0e14
+mul_q31: a = 20000002, b = 4b3c8c12, res = 9679182d6791824, result = 12cf2305
+mul_q31: a = 20000003, b = 0, res = 0, result = 0
+mul_q31: a = 20000004, b = b4c373ee, res = f6986e7c930dcfb8, result = ffffffffed30dcf9
+mul_q31: a = 20000001, b = 79bc384d, res = f37870a19bc384d, result = 1e6f0e14
+mul_q31: a = 20000002, b = 79bc384d, res = f37870a9378709a, result = 1e6f0e15
+mul_q31: a = 20000003, b = 4b3c8c12, res = 967918321b5a436, result = 12cf2306
+mul_q31: a = 20000004, b = 0, res = 0, result = 0
+mul_q31: a = 20000001, b = 4b3c8c12, res = 96791828b3c8c12, result = 12cf2305
+mul_q31: a = 20000002, b = 79bc384d, res = f37870a9378709a, result = 1e6f0e15
+mul_q31: a = 20000003, b = 79bc384d, res = f37870b0d34a8e7, result = 1e6f0e16
+mul_q31: a = 20000004, b = 4b3c8c12, res = 96791836cf23048, result = 12cf2306
+mul_q31: a = 20000001, b = 0, res = 0, result = 0
+mul_q31: a = 20000002, b = 4b3c8c12, res = 9679182d6791824, result = 12cf2305
+mul_q31: a = 20000003, b = 79bc384d, res = f37870b0d34a8e7, result = 1e6f0e16
+mul_q31: a = 20000004, b = 79bc384d, res = f37870b86f0e134, result = 1e6f0e17
+mul_q31: a = 20000001, b = b4c373ee, res = f6986e7d74c373ee, result = ffffffffed30dcfa
+mul_q31: a = 20000002, b = 0, res = 0, result = 0
+mul_q31: a = 20000003, b = 4b3c8c12, res = 967918321b5a436, result = 12cf2306
+mul_q31: a = 20000004, b = 79bc384d, res = f37870b86f0e134, result = 1e6f0e17
+mul_q31: a = 20000001, b = 8643c7b3, res = f0c878f5e643c7b3, result = ffffffffe190f1eb
+mul_q31: a = 20000002, b = b4c373ee, res = f6986e7d2986e7dc, result = ffffffffed30dcfa
+mul_q31: a = 20000003, b = 0, res = 0, result = 0
+mul_q31: a = 20000004, b = 4b3c8c12, res = 96791836cf23048, result = 12cf2306
+mul_q31: a = 20000001, b = 8643c7b3, res = f0c878f5e643c7b3, result = ffffffffe190f1eb
+mul_q31: a = 20000002, b = 8643c7b3, res = f0c878f56c878f66, result = ffffffffe190f1ea
+mul_q31: a = 20000003, b = b4c373ee, res = f6986e7cde4a5bca, result = ffffffffed30dcf9
+mul_q31: a = 20000004, b = 0, res = 0, result = 0
+mul_q31: a = 20000001, b = b4c373ee, res = f6986e7d74c373ee, result = ffffffffed30dcfa
+mul_q31: a = 20000002, b = 8643c7b3, res = f0c878f56c878f66, result = ffffffffe190f1ea
+mul_q31: a = 20000003, b = 8643c7b3, res = f0c878f4f2cb5719, result = ffffffffe190f1e9
+mul_q31: a = 20000004, b = b4c373ee, res = f6986e7c930dcfb8, result = ffffffffed30dcf9
+mul_q31: a = 20000001, b = 80001080, res = f000020f80001080, result = ffffffffe000041f
+mul_q31: a = 20000002, b = b4c373ee, res = f6986e7d2986e7dc, result = ffffffffed30dcfa
+mul_q31: a = 20000003, b = 8643c7b3, res = f0c878f4f2cb5719, result = ffffffffe190f1e9
+mul_q31: a = 20000004, b = 8643c7b3, res = f0c878f4790f1ecc, result = ffffffffe190f1e8
+y[0] = 4fad3f2f
+y[1] = 627c6236
+y[2] = 4fad3f32
+y[3] = 1e6f0e17
+y[4] = e190f1eb
+y[5] = b052c0ce
+y[6] = 9d839dc6
+y[7] = b052c0cb
+y[8] = e190f1e6
+y[9] = 1e6f0e12
+y[10] = 4fad3f2f
+y[11] = 627c6236
+y[12] = 4fad3f32
+y[13] = 1e6f0e17
+y[14] = e190f1eb
+y[15] = b052c0ce
+y[16] = 9d839dc6
+val = faabbccddfffffff, val2 = aabbccdd, val3 = dfffffff
+mcycle = 164229
+minstret = 164236
