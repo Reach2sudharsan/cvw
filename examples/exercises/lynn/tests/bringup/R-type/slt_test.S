@@ -1,7 +1,7 @@
 // C Runtime entry point
 // Sudharsan Gopalakrishnan
 // sgopalakrishnan@g.hmc.edu
-// 2/11/2026
+// 2/12/2026
 
 .extern return_slt_test
 .extern fail
@@ -105,41 +105,41 @@ slt_test:
         j return_slt_test
 
 Fail_Slt_1:
-    li   gp, 501
+    li   gp, 121
     j    fail
 
 Fail_Slt_2:
-    li   gp, 502
+    li   gp, 122
     j    fail
 
 Fail_Slt_3:
-    li   gp, 503
+    li   gp, 123
     j    fail
 
 Fail_Slt_4:
-    li   gp, 504
+    li   gp, 124
     j    fail
 
 Fail_Slt_5:
-    li   gp, 505
+    li   gp, 125
     j    fail
 
 Fail_Slt_6:
-    li   gp, 506
+    li   gp, 126
     j    fail
 
 Fail_Slt_7:
-    li   gp, 507
+    li   gp, 127
     j    fail
 
 Fail_Slt_8:
-    li   gp, 508
+    li   gp, 128
     j    fail
 
 Fail_Slt_9:
-    li   gp, 509
+    li   gp, 129
     j    fail
 
 Fail_Slt_10:
-    li   gp, 510
+    li   gp, 130
     j    fail

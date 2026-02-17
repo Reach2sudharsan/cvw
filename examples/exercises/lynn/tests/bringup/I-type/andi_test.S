@@ -95,41 +95,41 @@ pass:
         j return_andi_test
 
 Fail_Andi_1:
-    li   gp, 211
+    li   gp, 341
     j    fail
 
 Fail_Andi_2:
-    li   gp, 212
+    li   gp, 342
     j    fail
 
 Fail_Andi_3:
-    li   gp, 213
+    li   gp, 343
     j    fail
 
 Fail_Andi_4:
-    li   gp, 214
+    li   gp, 344
     j    fail
 
 Fail_Andi_5:
-    li   gp, 215
+    li   gp, 345
     j    fail
 
 Fail_Andi_6:
-    li   gp, 216
+    li   gp, 346
     j    fail
 
 Fail_Andi_7:
-    li   gp, 217
+    li   gp, 347
     j    fail
 
 Fail_Andi_8:
-    li   gp, 218
+    li   gp, 348
     j    fail
 
 Fail_Andi_9:
-    li   gp, 219
+    li   gp, 349
     j    fail
 
 Fail_Andi_10:
-    li   gp, 220
+    li   gp, 350
     j    fail

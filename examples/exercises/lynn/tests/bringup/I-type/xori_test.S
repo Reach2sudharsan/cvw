@@ -91,45 +91,45 @@ xori_test:
         beq  t2, t3, pass
         j Fail_Xori_10
 
-pass:
+    pass:
         j return_xori_test
 
 Fail_Xori_1:
-    li   gp, 411
+    li   gp, 331
     j    fail
 
 Fail_Xori_2:
-    li   gp, 412
+    li   gp, 332
     j    fail
 
 Fail_Xori_3:
-    li   gp, 413
+    li   gp, 333
     j    fail
 
 Fail_Xori_4:
-    li   gp, 414
+    li   gp, 334
     j    fail
 
 Fail_Xori_5:
-    li   gp, 415
+    li   gp, 335
     j    fail
 
 Fail_Xori_6:
-    li   gp, 416
+    li   gp, 336
     j    fail
 
 Fail_Xori_7:
-    li   gp, 417
+    li   gp, 337
     j    fail
 
 Fail_Xori_8:
-    li   gp, 418
+    li   gp, 338
     j    fail
 
 Fail_Xori_9:
-    li   gp, 419
+    li   gp, 339
     j    fail
 
 Fail_Xori_10:
-    li   gp, 420
+    li   gp, 340
     j    fail

@@ -1,7 +1,7 @@
 // C Runtime entry point
 // Sudharsan Gopalakrishnan
 // sgopalakrishnan@g.hmc.edu
-// 2/11/2026
+// 2/12/2026
 
 .extern return_xor_test
 .extern fail
@@ -105,41 +105,41 @@ xor_test:
         j return_xor_test
 
 Fail_Xor_1:
-    li   gp, 401
+    li   gp, 131
     j    fail
 
 Fail_Xor_2:
-    li   gp, 402
+    li   gp, 132
     j    fail
 
 Fail_Xor_3:
-    li   gp, 403
+    li   gp, 133
     j    fail
 
 Fail_Xor_4:
-    li   gp, 404
+    li   gp, 134
     j    fail
 
 Fail_Xor_5:
-    li   gp, 405
+    li   gp, 135
     j    fail
 
 Fail_Xor_6:
-    li   gp, 406
+    li   gp, 136
     j    fail
 
 Fail_Xor_7:
-    li   gp, 407
+    li   gp, 137
     j    fail
 
 Fail_Xor_8:
-    li   gp, 408
+    li   gp, 138
     j    fail
 
 Fail_Xor_9:
-    li   gp, 409
+    li   gp, 139
     j    fail
 
 Fail_Xor_10:
-    li   gp, 410
+    li   gp, 140
     j    fail

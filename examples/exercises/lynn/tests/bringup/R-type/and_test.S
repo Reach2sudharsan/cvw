@@ -105,41 +105,41 @@ and_test:
         j return_and_test
 
 Fail_And_1:
-    li   gp, 201
+    li   gp, 151
     j    fail
 
 Fail_And_2:
-    li   gp, 202
+    li   gp, 152
     j    fail
 
 Fail_And_3:
-    li   gp, 203
+    li   gp, 153
     j    fail
 
 Fail_And_4:
-    li   gp, 204
+    li   gp, 154
     j    fail
 
 Fail_And_5:
-    li   gp, 205
+    li   gp, 155
     j    fail
 
 Fail_And_6:
-    li   gp, 206
+    li   gp, 156
     j    fail
 
 Fail_And_7:
-    li   gp, 207
+    li   gp, 157
     j    fail
 
 Fail_And_8:
-    li   gp, 208
+    li   gp, 158
     j    fail
 
 Fail_And_9:
-    li   gp, 209
+    li   gp, 159
     j    fail
 
 Fail_And_10:
-    li   gp, 210
+    li   gp, 160
     j    fail

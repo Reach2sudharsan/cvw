@@ -105,41 +105,41 @@ or_test:
         j return_or_test
 
 Fail_Or_1:
-    li   gp, 101
+    li   gp, 141
     j    fail
 
 Fail_Or_2:
-    li   gp, 102
+    li   gp, 142
     j    fail
 
 Fail_Or_3:
-    li   gp, 103
+    li   gp, 143
     j    fail
 
 Fail_Or_4:
-    li   gp, 104
+    li   gp, 144
     j    fail
 
 Fail_Or_5:
-    li   gp, 105
+    li   gp, 145
     j    fail
 
 Fail_Or_6:
-    li   gp, 106
+    li   gp, 146
     j    fail
 
 Fail_Or_7:
-    li   gp, 107
+    li   gp, 147
     j    fail
 
 Fail_Or_8:
-    li   gp, 108
+    li   gp, 148
     j    fail
 
 Fail_Or_9:
-    li   gp, 109
+    li   gp, 149
     j    fail
 
 Fail_Or_10:
-    li   gp, 110
+    li   gp, 150
     j    fail

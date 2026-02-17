@@ -1,7 +1,7 @@
 // C Runtime entry point
 // Sudharsan Gopalakrishnan
 // sgopalakrishnan@g.hmc.edu
-// 2/11/2026
+// 2/12/2026
 
 .extern return_sub_test
 .extern fail
@@ -105,41 +105,41 @@ sub_test:
         j return_sub_test
 
 Fail_Sub_1:
-    li   gp, 401
+    li   gp, 111
     j    fail
 
 Fail_Sub_2:
-    li   gp, 402
+    li   gp, 112
     j    fail
 
 Fail_Sub_3:
-    li   gp, 403
+    li   gp, 113
     j    fail
 
 Fail_Sub_4:
-    li   gp, 404
+    li   gp, 114
     j    fail
 
 Fail_Sub_5:
-    li   gp, 405
+    li   gp, 115
     j    fail
 
 Fail_Sub_6:
-    li   gp, 406
+    li   gp, 116
     j    fail
 
 Fail_Sub_7:
-    li   gp, 407
+    li   gp, 117
     j    fail
 
 Fail_Sub_8:
-    li   gp, 408
+    li   gp, 118
     j    fail
 
 Fail_Sub_9:
-    li   gp, 409
+    li   gp, 119
     j    fail
 
 Fail_Sub_10:
-    li   gp, 410
+    li   gp, 120
     j    fail

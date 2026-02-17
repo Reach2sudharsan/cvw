@@ -85,41 +85,41 @@ pass:
         j return_addi_test
 
 Fail_Addi_1:
-    li   gp, 311
+    li   gp, 301
     j    fail
 
 Fail_Addi_2:
-    li   gp, 312
+    li   gp, 302
     j    fail
 
 Fail_Addi_3:
-    li   gp, 313
+    li   gp, 303
     j    fail
 
 Fail_Addi_4:
-    li   gp, 314
+    li   gp, 304
     j    fail
 
 Fail_Addi_5:
-    li   gp, 315
+    li   gp, 305
     j    fail
 
 Fail_Addi_6:
-    li   gp, 316
+    li   gp, 306
     j    fail
 
 Fail_Addi_7:
-    li   gp, 317
+    li   gp, 307
     j    fail
 
 Fail_Addi_8:
-    li   gp, 318
+    li   gp, 308
     j    fail
 
 Fail_Addi_9:
-    li   gp, 319
+    li   gp, 309
     j    fail
 
 Fail_Addi_10:
-    li   gp, 320
+    li   gp, 310
     j    fail

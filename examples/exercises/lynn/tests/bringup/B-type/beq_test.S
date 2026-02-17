@@ -88,41 +88,41 @@ pass:
 
 
 Fail_Beq_1:
-    li   gp, 701
+    li   gp, 501
     j    fail
 
 Fail_Beq_2:
-    li   gp, 702
+    li   gp, 502
     j    fail
 
 Fail_Beq_3:
-    li   gp, 703
+    li   gp, 503
     j    fail
 
 Fail_Beq_4:
-    li   gp, 704
+    li   gp, 504
     j    fail
 
 Fail_Beq_5:
-    li   gp, 705
+    li   gp, 505
     j    fail
 
 Fail_Beq_6:
-    li   gp, 706
+    li   gp, 506
     j    fail
 
 Fail_Beq_7:
-    li   gp, 707
+    li   gp, 507
     j    fail
 
 Fail_Beq_8:
-    li   gp, 708
+    li   gp, 508
     j    fail
 
 Fail_Beq_9:
-    li   gp, 709
+    li   gp, 509
     j    fail
 
 Fail_Beq_10:
-    li   gp, 710
+    li   gp, 510
     j    fail

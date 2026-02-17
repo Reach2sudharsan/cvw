@@ -1,7 +1,7 @@
 // C Runtime entry point
 // Sudharsan Gopalakrishnan
 // sgopalakrishnan@g.hmc.edu
-// 2/11/2026
+// 2/12/2026
 
 .extern return_add_test
 .extern fail
@@ -105,41 +105,41 @@ add_test:
         j return_add_test
 
 Fail_Add_1:
-    li   gp, 301
+    li   gp, 101
     j    fail
 
 Fail_Add_2:
-    li   gp, 302
+    li   gp, 102
     j    fail
 
 Fail_Add_3:
-    li   gp, 303
+    li   gp, 103
     j    fail
 
 Fail_Add_4:
-    li   gp, 304
+    li   gp, 104
     j    fail
 
 Fail_Add_5:
-    li   gp, 305
+    li   gp, 105
     j    fail
 
 Fail_Add_6:
-    li   gp, 306
+    li   gp, 106
     j    fail
 
 Fail_Add_7:
-    li   gp, 307
+    li   gp, 107
     j    fail
 
 Fail_Add_8:
-    li   gp, 308
+    li   gp, 108
     j    fail
 
 Fail_Add_9:
-    li   gp, 309
+    li   gp, 109
     j    fail
 
 Fail_Add_10:
-    li   gp, 310
+    li   gp, 110
     j    fail
