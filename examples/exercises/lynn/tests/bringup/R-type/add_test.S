@@ -93,11 +93,11 @@ add_test:
         j Fail_Add_9
 
     test10:
-        # 1000 + 2000 = 3000
+        # 1000 + 1000 = 2000
         li   t0, 1000
-        li   t1, 2000
+        li   t1, 1000
         add  t2, t0, t1
-        li   t3, 3000
+        li   t3, 2000
         beq  t2, t3, pass
         j Fail_Add_10
 

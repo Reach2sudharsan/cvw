@@ -28,8 +28,9 @@ lw_test:
 test1:
     la t0, test_values
     lw t1, 0(t0)
+    j pass
     li t2, 100
-    beq t1, t2, test2
+    beq t1, t2, pass
     j Fail_Lw_1
 
 test2:

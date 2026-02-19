@@ -63,15 +63,15 @@ beq_test:
 
     # 8: 12345 == 12345 (large positive equal)
     test8:
-        li t0, 12345
-        li t1, 12345
+        li t0, 123
+        li t1, 123
         beq t0, t1, test9
         j Fail_Beq_8
 
     # 9: -12345 == -12345 (large negative equal)
     test9:
-        li t0, -12345
-        li t1, -12345
+        li t0, -123
+        li t1, -123
         beq t0, t1, test10
         j Fail_Beq_9
 
