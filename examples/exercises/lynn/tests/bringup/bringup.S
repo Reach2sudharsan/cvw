@@ -106,9 +106,9 @@
     .type  main, @function
 
 main:
-    j lw_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j lui_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
-    return_lw_test:
+    return_lui_test:
         j pass
 
 
