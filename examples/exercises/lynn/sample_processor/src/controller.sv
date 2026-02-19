@@ -40,6 +40,7 @@ module controller(
             7'b1100011: controls = 13'b0_010_11_0_0_0_0_1_0_0; // beq
             7'b1101111: controls = 13'b1_011_11_0_1_0_0_0_1_0; // jal
             7'b0110111: controls = 13'b1_100_xx_0_1_0_0_0_0_0; // lui
+            7'b0010111: controls = 13'b1_100_11_0_0_0_0_0_0_0; // aupic
             default: begin
                 `ifdef DEBUG
                     controls = 13'bx_xxx_xx_x_x_x_x_x_x_x; // non-implemented instruction
