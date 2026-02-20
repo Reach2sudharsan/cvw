@@ -63,8 +63,8 @@ jalr_test:
         la t0, go1
         jalr ra, 0(t0)
         mv t3, ra
-        bne t3, zero, test6
-        j Fail_Jalr_5
+        beq t3, zero, Fail_Jalr_5
+        j test6
 
     # Test 6: multiple consecutive jalr calls
     test6:
@@ -129,6 +129,7 @@ go3:
     ret
 
 go4:
+    li sp, 0x807ffffc
     la t0, go1
     addi sp, sp, -8
     sw ra, 0(sp)

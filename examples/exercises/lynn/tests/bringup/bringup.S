@@ -106,9 +106,9 @@
     .type  main, @function
 
 main:
-    j auipc_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j bne_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
-    return_auipc_test:
+    return_bne_test:
         j pass
 
 

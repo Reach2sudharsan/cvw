@@ -13,6 +13,7 @@
 sw_test:
 
 pretest:
+    li sp, 0x807ffffc
     addi sp, sp, -80
 
     li t0, 100
