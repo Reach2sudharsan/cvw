@@ -106,19 +106,13 @@
     .type  main, @function
 
 main:
-    j beq_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j lb_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
-    # return_beq_test:
+    # return_lhu_test:
     #     j pass
 
 
 # # R-type
-
-#     return_lw_test:
-#         j sw_test
-
-#     return_sw_test:
-#         j add_test
 
 #     return_add_test:
 #         j sub_test
@@ -178,46 +172,52 @@ main:
 #     return_sltui_test:
 #         j lb_test
 
-#     return_lb_test:
-#         j lbu_test
+    return_lb_test:
+        j lbu_test
 
-#     return_lbu_test:
-#         j lh_test
+    return_lbu_test:
+        j lh_test
 
-#     return_lh_test:
-#         j lhu_test
+    return_lh_test:
+        j lhu_test
 
-#     return_lhu_test:
-#         j sb_test
+    return_lw_test:
+        j lhu_test
+
+    return_lhu_test:
+        j pass
 
 #     return_sb_test:
 #         j sh_test
 
 #     return_sh_test:
+#         j sw_test
+
+#     return_sw_test:
 #         j jalr_test
 
 #     return_jalr_test:
 #         j beq_test
 
 
-# B-type
-    return_beq_test:
-        j bne_test
+# # B-type
+#     return_beq_test:
+#         j bne_test
 
-    return_bne_test:
-        j blt_test
+#     return_bne_test:
+#         j blt_test
 
-    return_blt_test:
-        j bltu_test
+#     return_blt_test:
+#         j bltu_test
 
-    return_bltu_test:
-        j bge_test
+#     return_bltu_test:
+#         j bge_test
 
-    return_bge_test:
-        j bgeu_test
+#     return_bge_test:
+#         j bgeu_test
 
-    return_bgeu_test:
-        j pass
+#     return_bgeu_test:
+#         j pass
 
 # # J-type
 #     return_jal_test:
