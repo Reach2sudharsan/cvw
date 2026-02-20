@@ -6,7 +6,7 @@
 
 module controller(
         input   logic [6:0]   Op,
-        input   logic         Eq,
+        input   logic         Eq, Lt, Ltu,
         input   logic [2:0]   Funct3,
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
@@ -63,7 +63,22 @@ module controller(
     assign ALUControl = {Sub, ALUOp};
 
     // PCSrc logic
-    assign PCSrc = Branch & Eq | Jump;
+    assign PCSrc =
+
+            Jump |
+            (Branch &
+                (
+                    Eq & (Funct3 == 3'b000)     |
+                    ~Eq & (Funct3 == 3'b001)    |
+                    Lt & (Funct3 == 3'b100)     |
+                    ~Lt & (Funct3 == 3'b101)    |
+                    Ltu & (Funct3 == 3'b110)    |
+                    ~Ltu & (Funct3 == 3'b111)
+                )
+            );
+
+
+    // Branch & (Eq & (Funct3 == 3'b000) | ~Eq & (Funct3 == 3'b001)) | Jump;
 
     // MemWrite logic
     assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite

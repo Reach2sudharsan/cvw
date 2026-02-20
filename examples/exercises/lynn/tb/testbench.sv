@@ -65,9 +65,10 @@ module testbench;
       //         MemEn
       //         );
 
-      // $display("DataAdr: %h, s0: %h",
+      // $display("DataAdr: %h, t0: %h, t1: %h",
       //         DataAdr,
-      //         dut.ieu.dp.rf.rf[2]
+      //         dut.ieu.dp.rf.rf[5],
+      //         dut.ieu.dp.rf.rf[6]
       //         );
 
       // terminate program as it exited program space

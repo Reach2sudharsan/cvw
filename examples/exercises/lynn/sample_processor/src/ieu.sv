@@ -15,12 +15,12 @@ module ieu(
         output  logic           MemEn
     );
 
-    logic RegWrite, Jump, Eq, ALUResultSrc, ResultSrc;
+    logic RegWrite, Jump, Eq, Lt, Ltu, ALUResultSrc, ResultSrc;
     logic [1:0] ALUSrc;
     logic [2:0] ImmSrc;
     logic [1:0] ALUControl;
 
-    controller c(.Op(Instr[6:0]), .Funct3(Instr[14:12]), .Funct7b5(Instr[30]), .Eq,
+    controller c(.Op(Instr[6:0]), .Funct3(Instr[14:12]), .Funct7b5(Instr[30]), .Eq, .Lt, .Ltu,
         .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc,
         .ALUSrc, .RegWrite, .ImmSrc, .ALUControl, .MemEn, .Jump
     `ifdef DEBUG
@@ -29,6 +29,6 @@ module ieu(
     );
 
     datapath dp(.clk, .reset, .Funct3(Instr[14:12]), .Funct7b5(Instr[30]),
-        .ALUResultSrc, .ResultSrc, .ALUSrc, .Jump, .RegWrite, .ImmSrc, .ALUControl, .Eq,
+        .ALUResultSrc, .ResultSrc, .ALUSrc, .Jump, .RegWrite, .ImmSrc, .ALUControl, .Eq, .Lt, .Ltu,
         .PC, .PCPlus4, .Instr, .IEUAdr, .WriteData, .ReadData);
 endmodule

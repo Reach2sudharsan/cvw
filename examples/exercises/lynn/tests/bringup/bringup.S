@@ -106,10 +106,10 @@
     .type  main, @function
 
 main:
-    j bne_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j beq_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
-    return_bne_test:
-        j pass
+    # return_beq_test:
+    #     j pass
 
 
 # # R-type
@@ -200,24 +200,24 @@ main:
 #         j beq_test
 
 
-# # B-type
-#     return_beq_test:
-#         j bne_test
+# B-type
+    return_beq_test:
+        j bne_test
 
-#     return_bne_test:
-#         j blt_test
+    return_bne_test:
+        j blt_test
 
-#     return_blt_test:
-#         j bltu_test
+    return_blt_test:
+        j bltu_test
 
-#     return_bltu_test:
-#         j bge_test
+    return_bltu_test:
+        j bge_test
 
-#     return_bge_test:
-#         j bgeu_test
+    return_bge_test:
+        j bgeu_test
 
-#     return_bgeu_test:
-#         j pass
+    return_bgeu_test:
+        j pass
 
 # # J-type
 #     return_jal_test:
