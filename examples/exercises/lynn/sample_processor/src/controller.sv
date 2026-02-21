@@ -7,6 +7,7 @@
 module controller(
         input   logic [6:0]   Op,
         input   logic         Eq, Lt, Ltu,
+        input   logic [1:0]   IEUAdrb10,
         input   logic [2:0]   Funct3,
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
@@ -28,6 +29,7 @@ module controller(
     logic Sub, ALUOp;
     logic MemWrite;
     logic [12:0] controls;
+    logic [1:0] StoreType;
 
     // Main decoder
     always_comb
@@ -77,9 +79,28 @@ module controller(
                 )
             );
 
-
-    // Branch & (Eq & (Funct3 == 3'b000) | ~Eq & (Funct3 == 3'b001)) | Jump;
-
     // MemWrite logic
-    assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
+    // assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
+
+    assign StoreType = (Op == 7'b0100011) ? Funct3[1:0] : 2'b11;
+
+    always_comb begin
+        casez ({StoreType, IEUAdrb10})
+            4'b10_??: WriteByteEn = {(4){MemWrite}}; // sw
+
+            4'b01_0?: WriteByteEn = {2'b0, {(2){MemWrite}}}; // sh
+            4'b01_1?: WriteByteEn = {{(2){MemWrite}}, 2'b0}; // sh
+
+            4'b00_00: WriteByteEn = {3'b0, MemWrite}; // sb
+            4'b00_01: WriteByteEn = {2'b0, MemWrite, 1'b0}; // sb
+            4'b00_10: WriteByteEn = {1'b0, MemWrite, 2'b0}; // sb
+            4'b00_11: WriteByteEn = {MemWrite, 3'b0}; // sb
+
+            default: WriteByteEn = {(4){MemWrite}};
+
+
+        endcase
+    end
+
+
 endmodule

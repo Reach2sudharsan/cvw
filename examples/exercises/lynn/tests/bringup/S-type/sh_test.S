@@ -13,14 +13,18 @@
 sh_test:
 
 pretest:
+    li sp, 0x807ffffc
     addi sp, sp, -20
 
     li t0, 10
     sh t0, 0(sp)
-    li t0, 20
+    lh t0, 0(sp)
+    li t0, 20//20
     sh t0, 2(sp)
-    li t0, 30
+    lh t0, 2(sp)
+    li t0, 30 // 0001 1110 or just 1e
     sh t0, 4(sp)
+    lh t0, 4(sp)
     li t0, 40
     sh t0, 6(sp)
     li t0, 50
@@ -39,7 +43,13 @@ pretest:
     j test1
 
 // ---------------- TESTS ----------------
-
+/*
+0(sp) = 20
+2(sp) = 0
+4(sp) = 40
+6(sp) = 0
+8(sp) = 60
+*/
 test1:
     lh t0, 0(sp)
     li t1, 10

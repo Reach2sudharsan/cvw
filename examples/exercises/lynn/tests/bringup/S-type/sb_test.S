@@ -13,6 +13,7 @@
 sb_test:
 
 pretest:
+    li sp, 0x807ffffc
     addi sp, sp, -10
 
     li t0, 1

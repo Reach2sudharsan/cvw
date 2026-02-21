@@ -1,11 +1,9 @@
 // C Runtime entry point
 // Sudharsan Gopalakrishnan
 // sgopalakrishnan@g.hmc.edu
-// 2/12/2026
+// 2/20/2026
 
 # R-type
-.extern lw_test
-.extern sw_test
 .extern add_test
 .extern sub_test
 .extern slt_test
@@ -32,9 +30,13 @@
 .extern lbu_test
 .extern lh_test
 .extern lhu_test
+.extern lw_test
+.extern jalr_test
+
+# S-type
+.extern sw_test
 .extern sb_test
 .extern sh_test
-.extern jalr_test
 
 # B-type
 .extern beq_test
@@ -56,8 +58,6 @@
 
 
     # R-type
-    .global return_lw_test
-    .global return_sw_test
     .globl return_add_test
     .globl return_sub_test
     .globl return_slt_test
@@ -84,9 +84,13 @@
     .globl return_lbu_test
     .globl return_lh_test
     .globl return_lhu_test
+    .global return_lw_test
+    .globl return_jalr_test
+
+    # S-type
+    .global return_sw_test
     .globl return_sb_test
     .globl return_sh_test
-    .globl return_jalr_test
 
     # B-type
     .globl return_beq_test
@@ -106,10 +110,7 @@
     .type  main, @function
 
 main:
-    j lb_test // put which ever test you want --> if you run too many tests, then there will be memory overload
-
-    # return_lhu_test:
-    #     j pass
+    j lui_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
 
 # # R-type
@@ -142,7 +143,7 @@ main:
 #         j sltu_test
 
 #     return_sltu_test:
-#         j addi_test
+#         j pass
 
 # # I-type
 #     return_addi_test:
@@ -158,10 +159,10 @@ main:
 #         j andi_test
 
 #     return_andi_test:
-#         j beq_test
+#         j slli_test
 
 #     return_slli_test:
-#         j beq_test
+#         j srli_test
 
 #     return_srli_test:
 #         j srai_test
@@ -172,21 +173,25 @@ main:
 #     return_sltui_test:
 #         j lb_test
 
-    return_lb_test:
-        j lbu_test
+#     return_lb_test:
+#         j lbu_test
 
-    return_lbu_test:
-        j lh_test
+#     return_lbu_test:
+#         j lh_test
 
-    return_lh_test:
-        j lhu_test
+#     return_lh_test:
+#         j lhu_test
 
-    return_lw_test:
-        j lhu_test
+#     return_lw_test:
+#         j lhu_test
 
-    return_lhu_test:
-        j pass
+#     return_lhu_test:
+#         j jalr_test
 
+#     return_jalr_test:
+#         j pass
+
+# # S-type
 #     return_sb_test:
 #         j sh_test
 
@@ -194,10 +199,8 @@ main:
 #         j sw_test
 
 #     return_sw_test:
-#         j jalr_test
+#         j pass
 
-#     return_jalr_test:
-#         j beq_test
 
 
 # # B-type
@@ -221,11 +224,11 @@ main:
 
 # # J-type
 #     return_jal_test:
-#         j lui_test
-
-# # U-type
-#     return_lui_test:
-#         j auipc_test
-
-#     return_auipc_test:
 #         j pass
+
+# U-type
+    return_lui_test:
+        j auipc_test
+
+    return_auipc_test:
+        j pass

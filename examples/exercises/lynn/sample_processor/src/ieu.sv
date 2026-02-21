@@ -19,9 +19,10 @@ module ieu(
     logic [1:0] ALUSrc;
     logic [2:0] ImmSrc;
     logic [1:0] ALUControl;
+    logic [1:0] IEUAdrb10;
 
     controller c(.Op(Instr[6:0]), .Funct3(Instr[14:12]), .Funct7b5(Instr[30]), .Eq, .Lt, .Ltu,
-        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc,
+        .IEUAdrb10, .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc,
         .ALUSrc, .RegWrite, .ImmSrc, .ALUControl, .MemEn, .Jump
     `ifdef DEBUG
         , .insn_debug(Instr)
@@ -30,5 +31,5 @@ module ieu(
 
     datapath dp(.clk, .reset, .Funct3(Instr[14:12]), .Funct7b5(Instr[30]),
         .ALUResultSrc, .ResultSrc, .ALUSrc, .Jump, .RegWrite, .ImmSrc, .ALUControl, .Eq, .Lt, .Ltu,
-        .PC, .PCPlus4, .Instr, .IEUAdr, .WriteData, .ReadData);
+        .PC, .PCPlus4, .Instr, .IEUAdr, .WriteData, .IEUAdrb10, .ReadData);
 endmodule

@@ -16,6 +16,7 @@ module datapath(
         input   logic [31:0]    PC, PCPlus4,
         input   logic [31:0]    Instr,
         output  logic [31:0]    IEUAdr, WriteData,
+        output  logic [1:0]     IEUAdrb10,
         input   logic [31:0]    ReadData
     );
 
@@ -24,6 +25,7 @@ module datapath(
     logic [31:0] ALUResult, IEUResult, Result, SizedResult, JumpMuxResult;
     logic [15:0] HalfResult;
     logic [7:0] ByteResult;
+    logic [2:0] LoadType;
 
     // register file logic
     regfile rf(.clk, .WE3(RegWrite), .A1(Instr[19:15]), .A2(Instr[24:20]),
@@ -48,28 +50,36 @@ module datapath(
     mux2 #(16) halfmux(Result[15:0], Result[31:16], IEUResult[1], HalfResult);
     mux2 #(8) bytemux(HalfResult[7:0], HalfResult[15:8], IEUResult[0], ByteResult);
 
+    assign LoadType = (Instr[6:0] == 7'b0000011) ? Funct3 : 3'b111; // determines type of load instruction to perform
+    assign IEUAdrb10 = IEUAdr[1:0];
+
     always_comb begin
 
-        case ({Instr[6:0], Funct3})
-            10'b0000011_010: SizedResult = Result;
-            10'b0000011_001: SizedResult = {{16{HalfResult[15]}}, HalfResult};
-            10'b0000011_101: SizedResult = {16'b0, HalfResult};
-            10'b0000011_000: SizedResult = {{24{ByteResult[7]}}, ByteResult};
-            10'b0000011_100: SizedResult = {24'b0, ByteResult};
+        case (LoadType)
+            3'b010: SizedResult = Result; // lw
+            3'b001: SizedResult = {{16{HalfResult[15]}}, HalfResult}; // lh
+            3'b101: SizedResult = {16'b0, HalfResult}; // lhu
+            3'b000: SizedResult = {{24{ByteResult[7]}}, ByteResult}; // lb
+            3'b100: SizedResult = {24'b0, ByteResult}; // lbu
             default: SizedResult = Result;
         endcase
     end
 
+    always_comb begin
+        casez ({Funct3[1:0], IEUAdr[1:0]})
+            4'b10_??: WriteData = R2; // sw
 
+            4'b01_0?: WriteData = {16'b0, R2[15:0]}; // sh
+            4'b01_1?: WriteData = {R2[15:0], 16'b0}; // sh
 
+            4'b00_00: WriteData = {24'b0, R2[7:0]}; // sb
+            4'b00_01: WriteData = {16'b0, R2[7:0], 8'b0}; // sb
+            4'b00_10: WriteData = {8'b0, R2[7:0], 16'b0}; // sb
+            4'b00_11: WriteData = {R2[7:0], 24'b0}; // sb
 
-    // IEUResult (Address) and Result
+            default: WriteData = R2;
 
+        endcase
+    end
 
-    // lh t0, 0(r1)
-    // lh t0, 2(r1)
-    // lh t0, 4(t1)
-    // lh t0, 8(t1)
-
-    assign WriteData = R2;
 endmodule

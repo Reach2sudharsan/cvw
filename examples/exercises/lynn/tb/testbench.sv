@@ -59,7 +59,7 @@ module testbench;
 
     if (~reset) begin
 
-      // $display("PC: %h \t Instr: %h", PC, Instr); //// THIS is a really COOL LINE
+      // $display("\nPC: %h \t Instr: %h", PC, Instr); //// THIS is a really COOL LINE
 
       // $display("MemEn: %b",
       //         MemEn
