@@ -110,40 +110,40 @@
     .type  main, @function
 
 main:
-    j lui_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j add_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
 
-# # R-type
+# R-type
 
-#     return_add_test:
-#         j sub_test
+    return_add_test:
+        j sub_test
 
-#     return_sub_test:
-#         j slt_test
+    return_sub_test:
+        j slt_test
 
-#     return_slt_test:
-#         j xor_test
+    return_slt_test:
+        j xor_test
 
-#     return_xor_test:
-#         j or_test
+    return_xor_test:
+        j or_test
 
-#     return_or_test:
-#         j and_test
+    return_or_test:
+        j and_test
 
-#     return_and_test:
-#         j sll_test
+    return_and_test:
+        j sll_test
 
-#     return_sll_test:
-#         j srl_test
+    return_sll_test:
+        j srl_test
 
-#     return_srl_test:
-#         j sra_test
+    return_srl_test:
+        j sra_test
 
-#     return_sra_test:
-#         j sltu_test
+    return_sra_test:
+        j sltu_test
 
-#     return_sltu_test:
-#         j pass
+    return_sltu_test:
+        j pass
 
 # # I-type
 #     return_addi_test:
@@ -201,8 +201,6 @@ main:
 #     return_sw_test:
 #         j pass
 
-
-
 # # B-type
 #     return_beq_test:
 #         j bne_test
@@ -226,9 +224,9 @@ main:
 #     return_jal_test:
 #         j pass
 
-# U-type
-    return_lui_test:
-        j auipc_test
+# # U-type
+#     return_lui_test:
+#         j auipc_test
 
-    return_auipc_test:
-        j pass
+#     return_auipc_test:
+#         j pass

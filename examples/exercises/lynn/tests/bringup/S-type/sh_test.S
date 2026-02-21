@@ -18,13 +18,10 @@ pretest:
 
     li t0, 10
     sh t0, 0(sp)
-    lh t0, 0(sp)
     li t0, 20//20
     sh t0, 2(sp)
-    lh t0, 2(sp)
     li t0, 30 // 0001 1110 or just 1e
     sh t0, 4(sp)
-    lh t0, 4(sp)
     li t0, 40
     sh t0, 6(sp)
     li t0, 50
