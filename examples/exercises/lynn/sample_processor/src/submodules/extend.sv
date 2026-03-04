@@ -20,6 +20,7 @@ module extend(
             3'b011: ImmExt = {{12{Instr[31]}}, Instr[19:12], Instr[20], Instr[30:21], 1'b0};
             // lui
             3'b100: ImmExt = {Instr[31:12], 12'b0};
+
             default: ImmExt = 32'bx; // undefined
         endcase
     end

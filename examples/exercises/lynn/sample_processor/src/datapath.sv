@@ -9,6 +9,7 @@ module datapath(
         input   logic           ALUResultSrc, ResultSrc,
         input   logic [1:0]     ALUSrc,
         input   logic           Jump, // NEW SIGNAL ADDED
+        input   logic           IsJalr, // FOR JALR
         input   logic           RegWrite,
         input   logic [2:0]     ImmSrc,
         input   logic [1:0]     ALUControl,
@@ -39,7 +40,7 @@ module datapath(
     mux2 #(32) srcamux(R1, PC, ALUSrc[1], SrcA);
     mux2 #(32) srcbmux(R2, ImmExt, ALUSrc[0], SrcB);
 
-    alu alu(.SrcA, .SrcB, .ALUControl, .Funct3, .Funct7b5, .ALUResult, .IEUAdr);
+    alu alu(.SrcA, .SrcB, .ALUControl, .Funct3, .Funct7b5, .IsJalr, .ALUResult, .IEUAdr);
 
     // Need to add Jump Flag
     mux2 #(32) jumpmux(ImmExt, PCPlus4, Jump, JumpMuxResult); // jumpmux
@@ -81,5 +82,13 @@ module datapath(
 
         endcase
     end
+
+    // debug
+    // always_comb begin
+        // if (IsJalr) begin
+            // $display("JALR: R1=%h ImmExt=%h SrcA=%h SrcB=%h IEUAdr=%h ALUSrc=%b",
+                    // R1, ImmExt, SrcA, SrcB, IEUAdr, ALUSrc);
+        // end
+    // end
 
 endmodule

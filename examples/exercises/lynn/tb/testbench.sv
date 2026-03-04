@@ -71,10 +71,26 @@ module testbench;
       //         dut.ieu.dp.rf.rf[6]
       //         );
 
+      if (PC >= 32'h800046dc && PC <= 32'h80004710)
+            $display("PC=%h Instr=%h x6=%h x1=%h", PC, Instr,
+                     dut.ieu.dp.rf.rf[6],
+                     dut.ieu.dp.rf.rf[1]);
+      if (MemEn && WriteEn)
+          $display("WRITE: PC=%h DataAdr=%h WriteData=%h ByteEn=%b", PC, DataAdr, WriteData, WriteByteEn);
+      if (MemEn && !WriteEn)
+          $display("READ: PC=%h DataAdr=%h", PC, DataAdr);
+
+      if (PC >= 32'h8000030c && PC <= 32'h80000790)
+          $display("PC=%h Instr=%h x9=%h x22=%h x3=%h", PC, Instr,
+                  dut.ieu.dp.rf.rf[9],
+                  dut.ieu.dp.rf.rf[22],
+                  dut.ieu.dp.rf.rf[3]);
+
       // terminate program as it exited program space
       if (Instr === 'x) begin
         $display("Instruction data x (PC: %h)", PC);
         $finish(-1);
+
     end
 
     end

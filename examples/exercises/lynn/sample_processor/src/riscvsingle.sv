@@ -30,4 +30,5 @@ module riscvsingle (
         );
 
     assign WriteEn = |WriteByteEn;
+
 endmodule

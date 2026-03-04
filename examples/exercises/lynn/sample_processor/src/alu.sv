@@ -7,6 +7,7 @@ module alu(
         input   logic [1:0]     ALUControl,
         input   logic [2:0]     Funct3,
         input   logic           Funct7b5, // NEW INPUT ADDED
+        input   logic           IsJalr,
         output  logic [31:0]    ALUResult, IEUAdr
     );
 
@@ -20,7 +21,11 @@ module alu(
     // Add or subtract
     assign CondInvb = Sub ? ~SrcB : SrcB;
     assign Sum = SrcA + CondInvb + {{(31){1'b0}}, Sub};
-    assign IEUAdr = Sum; // Send this out to IFU and LSU, for optimizing instrs with PC+imm
+
+    // need to take into account jalr, which must use mask of ~1 to align address
+
+    // Send this out to IFU and LSU, for optimizing instrs with PC+imm
+    assign IEUAdr = IsJalr ? (Sum&~1) : Sum;
 
     // Set less than based on subtraction result
     assign Overflow = (SrcA[31] ^ SrcB[31]) & (SrcA[31] ^ Sum[31]);
@@ -54,4 +59,11 @@ module alu(
             default: ALUResult = 'x;
         endcase
     end
+
+    // always_comb begin
+        // if (IsJalr) begin
+            // $display("ALU JALR: SrcA=%h SrcB=%h Sum=%h IEUAdr=%h",
+                    // SrcA, SrcB, Sum, IEUAdr);
+        // end
+    // end
 endmodule

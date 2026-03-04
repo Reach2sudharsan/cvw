@@ -19,7 +19,8 @@ module controller(
         output  logic [2:0]   ImmSrc,
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,
-        output  logic         Jump // NEW SIGNAL ADDED
+        output  logic         Jump, // NEW SIGNAL ADDED
+        output  logic         IsJalr
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
@@ -39,11 +40,11 @@ module controller(
             7'b0100011: controls = 13'b0_001_01_0_0_1_0_0_0_1; // sw
             7'b0110011: controls = 13'b1_xxx_00_1_0_0_0_0_0_0; // R-type
             7'b0010011: controls = 13'b1_000_01_1_0_0_0_0_0_0; // I-type ALU
-            7'b1100011: controls = 13'b0_010_11_0_0_0_0_1_0_0; // beq
+            7'b1100011: controls = 13'b0_010_11_0_0_0_0_1_0_0; // B-type
             7'b1101111: controls = 13'b1_011_11_0_1_0_0_0_1_0; // jal
             7'b0110111: controls = 13'b1_100_xx_0_1_0_0_0_0_0; // lui
             7'b0010111: controls = 13'b1_100_11_0_0_0_0_0_0_0; // aupic
-            7'b1100111: controls = 13'b1_000_01_0_1_0_0_0_1_0; // jalr
+            7'b1100111: controls = 13'b1_000_01_1_1_0_0_0_1_0; // jalr
             default: begin
                 `ifdef DEBUG
                     controls = 13'bx_xxx_xx_x_x_x_x_x_x_x; // non-implemented instruction
@@ -61,8 +62,24 @@ module controller(
         ResultSrc, Branch, Jump, MemEn} = controls;
 
     // ALU Control Logic
-    assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] | (Funct3 == 3'b010)); // subtract or SLT
+    // assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] | (Funct3 == 3'b010)); // subtract or SLT
+    assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] & ~Op[2] | (Funct3 == 3'b010));
     assign ALUControl = {Sub, ALUOp};
+
+    /*
+    RTYPE:
+    01 - All others
+    11 - Subtraction or SLT
+
+    I-TYPE:
+    01 - All others
+    11 - Subtraction or SLT
+
+    JALR:
+    Sub = 1 & (Funct == 000 and Funct7b5 and OP 5 == 1)
+
+
+    */
 
     // PCSrc logic
     assign PCSrc =
@@ -101,6 +118,14 @@ module controller(
 
         endcase
     end
+
+    assign IsJalr = (Op == 7'b1100111) & (Funct3 == 3'b000);
+
+    // always_comb begin
+        // if (Op == 7'b1100111)
+            // $display("Controller: MemEn=%0d MemWrite=%0d", MemEn, MemWrite);
+    // end
+
 
 
 endmodule
