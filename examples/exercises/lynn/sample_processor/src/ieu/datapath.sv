@@ -6,18 +6,21 @@ module datapath(
         input   logic           clk, reset,
         input   logic [2:0]     Funct3,
         input   logic           Funct7b5, // NEW SIGNAL ADDED
-        input   logic           ALUResultSrc, ResultSrc,
+        input   logic           ALUResultSrc,
+        input   logic [1:0]     ResultSrc,
         input   logic [1:0]     ALUSrc,
         input   logic           Jump, // NEW SIGNAL ADDED
         input   logic           IsJalr, // FOR JALR
         input   logic           RegWrite,
         input   logic [2:0]     ImmSrc,
         input   logic [1:0]     ALUControl,
+        input   logic [31:0]    CSRReadData, // CSR Read
         output  logic           Eq, Lt, Ltu,
         input   logic [31:0]    PC, PCPlus4,
         input   logic [31:0]    Instr,
         output  logic [31:0]    IEUAdr, WriteData,
         output  logic [1:0]     IEUAdrb10,
+        // output  logic [31:0]    R1, // CSR
         input   logic [31:0]    ReadData
     );
 
@@ -45,7 +48,8 @@ module datapath(
     // Need to add Jump Flag
     mux2 #(32) jumpmux(ImmExt, PCPlus4, Jump, JumpMuxResult); // jumpmux
     mux2 #(32) ieuresultmux(ALUResult, JumpMuxResult, ALUResultSrc, IEUResult); // now takes in jumpMuxResult instead of PCPlus4
-    mux2 #(32) resultmux(IEUResult, ReadData, ResultSrc, Result);
+    // mux2 #(32) resultmux(IEUResult, ReadData, ResultSrc, Result); // change to mux3 for csr
+    mux3 #(32) resultmux(IEUResult, ReadData, CSRReadData, ResultSrc, Result);
 
     // half and byte muxes
     mux2 #(16) halfmux(Result[15:0], Result[31:16], IEUResult[1], HalfResult);

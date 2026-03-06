@@ -12,10 +12,13 @@ module ieu(
         output  logic [3:0]     WriteByteEn,
         output  logic [31:0]    IEUAdr, WriteData,
         input   logic [31:0]    ReadData,
-        output  logic           MemEn
+        input   logic [31:0]    CSRReadData,
+        output  logic           MemEn,
+        // output  logic [31:0]    R1,
     );
 
-    logic RegWrite, Jump, IsJalr, Eq, Lt, Ltu, ALUResultSrc, ResultSrc;
+    logic RegWrite, Jump, IsJalr, Eq, Lt, Ltu, ALUResultSrc;
+    logic [1:0] ResultSrc;
     logic [1:0] ALUSrc;
     logic [2:0] ImmSrc;
     logic [1:0] ALUControl;
@@ -30,6 +33,6 @@ module ieu(
     );
 
     datapath dp(.clk, .reset, .Funct3(Instr[14:12]), .Funct7b5(Instr[30]),
-        .ALUResultSrc, .ResultSrc, .ALUSrc, .Jump, .IsJalr, .RegWrite, .ImmSrc, .ALUControl, .Eq, .Lt, .Ltu,
+        .ALUResultSrc, .ResultSrc, .ALUSrc, .Jump, .IsJalr, .RegWrite, .ImmSrc, .ALUControl, .CSRReadData, .Eq, .Lt, .Ltu,
         .PC, .PCPlus4, .Instr, .IEUAdr, .WriteData, .IEUAdrb10, .ReadData);
 endmodule
