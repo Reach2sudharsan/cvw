@@ -6,6 +6,8 @@ module alu(
         input   logic [31:0]    SrcA, SrcB,
         input   logic [1:0]     ALUControl,
         input   logic [2:0]     Funct3,
+        input   logic [6:0]     Op,
+        input   logic           Funct7b0, // NEW INPUT ADDED
         input   logic           Funct7b5, // NEW INPUT ADDED
         input   logic           IsJalr,
         output  logic [31:0]    ALUResult, IEUAdr
@@ -15,6 +17,9 @@ module alu(
     logic [31:0] CondInvb, Sum, SLT, SLTU;
     logic ALUOp, Sub, Overflow, Neg, LT;
     logic [2:0] ALUFunct;
+    logic [63:0] mul_tmp, mulhu_tmp;
+    logic signed [63:0] mulhsu_tmp;
+
 
     assign {Sub, ALUOp} = ALUControl;
 
@@ -42,14 +47,20 @@ module alu(
 
 
     always_comb begin
+        mul_tmp = $signed({{32{SrcA[31]}}, SrcA}) * $signed({{32{SrcB[31]}}, SrcB}); // 64-bit product
+        mulhsu_tmp = $signed({{32{SrcA[31]}}, SrcA}) * $unsigned({32'b0, SrcB});   // signed × unsigned
+        mulhu_tmp = {32'b0, SrcA} * {32'b0, SrcB};;             // unsigned × unsigned
+
         case (ALUFunct)
-            3'b000: ALUResult = Sum; // add or sub
-            3'b010: ALUResult = SLT; // slt
-            3'b011: ALUResult = SLTU; // sltu
+            3'b000: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mul_tmp[31:0] : Sum; // add or sub OR mul
+            3'b010: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mulhsu_tmp[63:32] : SLT; // slt OR mulhsu
+            3'b011: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mulhu_tmp[63:32] : SLTU; // sltu OR mulhu
             3'b110: ALUResult = SrcA | SrcB; // or
             3'b100: ALUResult = SrcA ^ SrcB; // xori
             3'b111: ALUResult = SrcA & SrcB; // and
-            3'b001: ALUResult = SrcA << SrcB[4:0]; // sll
+            3'b001: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mul_tmp[63:32] : SrcA << SrcB[4:0]; // sll OR mulh
+
+
             3'b101:
                     case(Funct7b5)
                         0: ALUResult = SrcA >> SrcB[4:0]; // srl

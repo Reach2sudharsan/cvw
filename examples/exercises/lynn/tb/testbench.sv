@@ -59,32 +59,41 @@ module testbench;
 
     if (~reset) begin
 
-      // $display("\nPC: %h \t Instr: %h", PC, Instr); //// THIS is a really COOL LINE
+      $display("\nPC: %h \t Instr: %h \t IEUAdr: %h", PC, Instr, DataAdr); //// THIS is a really COOL LINE
 
       // $display("MemEn: %b",
       //         MemEn
       //         );
 
-      // $display("DataAdr: %h, t0: %h, t1: %h",
-      //         DataAdr,
-      //         dut.ieu.dp.rf.rf[5],
-      //         dut.ieu.dp.rf.rf[6]
+      // $display("rdcycle: %h, rdtime: %h, rdinsret: %h",
+      //         dut.prv.csrf.rdcycle,
+      //         dut.prv.csrf.rdtime,
+      //         dut.prv.csrf.rdinsret
       //         );
+      // if (PC >= 32'h800046dc && PC <= 32'h80004710)
+      //       $display("PC=%h Instr=%h x6=%h x1=%h", PC, Instr,
+      //                dut.ieu.dp.rf.rf[6],
+      //                dut.ieu.dp.rf.rf[1]);
+      // if (MemEn && WriteEn)
+      //     $display("WRITE: PC=%h DataAdr=%h WriteData=%h ByteEn=%b", PC, DataAdr, WriteData, WriteByteEn);
+      // if (MemEn && !WriteEn)
+      //     $display("READ: PC=%h DataAdr=%h", PC, DataAdr);
 
-      if (PC >= 32'h800046dc && PC <= 32'h80004710)
-            $display("PC=%h Instr=%h x6=%h x1=%h", PC, Instr,
-                     dut.ieu.dp.rf.rf[6],
-                     dut.ieu.dp.rf.rf[1]);
-      if (MemEn && WriteEn)
-          $display("WRITE: PC=%h DataAdr=%h WriteData=%h ByteEn=%b", PC, DataAdr, WriteData, WriteByteEn);
-      if (MemEn && !WriteEn)
-          $display("READ: PC=%h DataAdr=%h", PC, DataAdr);
+      // if (PC >= 32'h8000030c && PC <= 32'h80000790)
+      //     $display("PC=%h Instr=%h x9=%h x22=%h x3=%h", PC, Instr,
+      //             dut.ieu.dp.rf.rf[9],
+      //             dut.ieu.dp.rf.rf[22],
+      //             dut.ieu.dp.rf.rf[3]);
 
-      if (PC >= 32'h8000030c && PC <= 32'h80000790)
-          $display("PC=%h Instr=%h x9=%h x22=%h x3=%h", PC, Instr,
-                  dut.ieu.dp.rf.rf[9],
-                  dut.ieu.dp.rf.rf[22],
-                  dut.ieu.dp.rf.rf[3]);
+
+      $display("SrcA: %h, SrcB: %h, ALUResult: %h",
+
+                dut.ieu.dp.alu.SrcA,
+                dut.ieu.dp.alu.SrcB,
+                dut.ieu.dp.alu.ALUResult,
+              );
+
+
 
       // terminate program as it exited program space
       if (Instr === 'x) begin

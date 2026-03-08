@@ -23,15 +23,16 @@ module riscvsingle (
     logic [31:0] PCPlus4;
     logic PCSrc;
     logic Load;
+    logic [7:0] HpmSignal;
 
     logic [31:0] CSRReadData;
 
     ifu ifu(.clk, .reset, .PCSrc, .IEUAdr, .PC, .PCPlus4);
     ieu ieu(.clk, .reset, .Instr, .PC, .PCPlus4, .PCSrc, .WriteByteEn,
-            .IEUAdr, .WriteData, .ReadData, .CSRReadData, .MemEn
+            .IEUAdr, .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal
         );
 
-    privileged prv(.clk, .reset, .Instr, .csr_rdata(CSRReadData));
+    privileged prv(.clk, .reset, .Instr, .HpmSignal, .csr_rdata(CSRReadData));
 
 
     assign WriteEn = |WriteByteEn;

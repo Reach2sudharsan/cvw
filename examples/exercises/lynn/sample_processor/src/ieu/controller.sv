@@ -9,6 +9,7 @@ module controller(
         input   logic         Eq, Lt, Ltu,
         input   logic [1:0]   IEUAdrb10,
         input   logic [2:0]   Funct3,
+        // input   logic         Funct7b0,
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
@@ -22,6 +23,11 @@ module controller(
         output  logic         Jump, // NEW SIGNAL ADDED
         output  logic         IsJalr,
         // output  logic         CSRWrite;
+
+        // considering just having a single N-bit signal for HPM counters
+
+        output logic [7:0]    HpmSignal
+
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
@@ -30,8 +36,10 @@ module controller(
     logic Branch;
     logic Sub, ALUOp;
     logic MemWrite;
-    logic [14:0] controls;
+    logic [13:0] controls;
     logic [1:0] StoreType;
+
+    logic HpmAdd, HpmBranchTaken;
 
     // Main decoder
     always_comb
@@ -46,8 +54,7 @@ module controller(
             7'b0110111: controls = 14'b1_100_xx_0_1_0_00_0_0_0; // lui
             7'b0010111: controls = 14'b1_100_11_0_0_0_00_0_0_0; // aupic
             7'b1100111: controls = 14'b1_000_01_1_1_0_00_0_1_0; // jalr
-
-            7'b1110011: controls = 14'b1_xxx_xx_x_x_x_10_x_x_x; // csrrs
+            7'b1110011: controls = 14'b1_xxx_xx_x_x_0_10_0_0_0; // csrrs
 
             default: begin
                 `ifdef DEBUG
@@ -70,35 +77,35 @@ module controller(
     assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] & ~Op[2] | (Funct3 == 3'b010));
     assign ALUControl = {Sub, ALUOp};
 
-    /*
-    RTYPE:
-    01 - All others
-    11 - Subtraction or SLT
-
-    I-TYPE:
-    01 - All others
-    11 - Subtraction or SLT
-
-    JALR:
-    Sub = 1 & (Funct == 000 and Funct7b5 and OP 5 == 1)
-
-
-    */
+    assign HpmAdd = ALUOp && (Funct3 == 3'b000) && ~Sub;
+    // assign HpmBranch = Branch;
+    assign HpmBranchTaken =
+        (Branch &
+            (
+                Eq & (Funct3 == 3'b000)     |
+                ~Eq & (Funct3 == 3'b001)    |
+                Lt & (Funct3 == 3'b100)     |
+                ~Lt & (Funct3 == 3'b101)    |
+                Ltu & (Funct3 == 3'b110)    |
+                ~Ltu & (Funct3 == 3'b111)
+            )
+        );
 
     // PCSrc logic
-    assign PCSrc =
+    assign PCSrc = Jump | HpmBranchTaken;
 
-            Jump |
-            (Branch &
-                (
-                    Eq & (Funct3 == 3'b000)     |
-                    ~Eq & (Funct3 == 3'b001)    |
-                    Lt & (Funct3 == 3'b100)     |
-                    ~Lt & (Funct3 == 3'b101)    |
-                    Ltu & (Funct3 == 3'b110)    |
-                    ~Ltu & (Funct3 == 3'b111)
-                )
-            );
+    // hpm[10]_hpm[9]_hpm[8]_hpm[7]_hpm[6]_hpm[5]_hpm[4]_hpm[3]
+    assign HpmSignal = {
+                ALUOp,                  // hpm[10]: # of R-type and I-type instrs
+                Jump,                   // hpm[9]: # of jumps
+                Op == 7'b011,           // hpm[8]: # of loads from data memory
+                MemWrite,               // hpm[7]: # of writes to data memory
+                RegWrite,               // hpm[6]: # of writes to RegFile
+                HpmBranchTaken,         // hpm[5]: # of branches taken
+                Branch,                 // hpm[4]: # of branches eval
+                HpmAdd                  // hpm[3]: # adds
+            };
+
 
     // MemWrite logic
     // assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
@@ -117,6 +124,7 @@ module controller(
             4'b00_10: WriteByteEn = {1'b0, MemWrite, 2'b0}; // sb
             4'b00_11: WriteByteEn = {MemWrite, 3'b0}; // sb
 
+
             default: WriteByteEn = {(4){MemWrite}};
 
 
@@ -133,3 +141,59 @@ module controller(
 
 
 endmodule
+
+
+
+ /*
+    RTYPE:
+    01 - All others
+    11 - Subtraction or SLT
+
+    I-TYPE:
+    01 - All others
+    11 - Subtraction or SLT
+
+    JALR:
+    Sub = 1 & (Funct == 000 and Funct7b5 and OP 5 == 1)
+
+
+    */
+
+    /*
+    HPM CSRs
+
+
+    hpm 3: # of add instructions
+        just check to see if ALUOP = 1, Sun = 0, and Funct3 == 000 and increment by 1
+
+    hpm 4: # of branches evaluated
+        just check branch flag and increment by 1
+
+    hpm 5: # of branches taken
+        just check branch flag and specifically
+            (Branch &
+                (
+                    Eq & (Funct3 == 3'b000)     |
+                    ~Eq & (Funct3 == 3'b001)    |
+                    Lt & (Funct3 == 3'b100)     |
+                    ~Lt & (Funct3 == 3'b101)    |
+                    Ltu & (Funct3 == 3'b110)    |
+                    ~Ltu & (Funct3 == 3'b111)
+                )
+
+    hpm 6: # writes to RegFile
+        just check RegWrite
+
+    hpm 7: # writes to data memory (in other words, any store instruction)
+        just check MemWrite
+
+    hpm 8: # reads from data memory (in other words, any load instruction)
+        just check op == 11
+
+    hpm 9: # jump instructions
+        just check Jump
+
+    hpm 10: # R-type and I-type
+        just check ALUOp
+
+    */
