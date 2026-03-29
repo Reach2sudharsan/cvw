@@ -14,7 +14,7 @@ module controller(
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
         output  logic [3:0]   WriteByteEn,
-        output  logic         PCSrc,
+        // output  logic         PCSrc,
         output  logic         RegWrite,
         output  logic [1:0]   ALUSrc,
         output  logic [2:0]   ImmSrc,
@@ -22,20 +22,23 @@ module controller(
         output  logic         MemEn,
         output  logic         Jump, // NEW SIGNAL ADDED
         output  logic         IsJalr,
+        output  logic         Branch,
+        output  logic         MemWrite,
         // output  logic         CSRWrite;
 
         // considering just having a single N-bit signal for HPM counters
 
-        output logic [7:0]    HpmSignal
+        output logic [7:0]    HpmSignal,
+        output logic          ALUOp
 
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
     );
 
-    logic Branch;
-    logic Sub, ALUOp;
-    logic MemWrite;
+    // logic Branch;
+    logic Sub;
+    // logic MemWrite;
     logic [13:0] controls;
     logic [1:0] StoreType;
 
@@ -77,34 +80,34 @@ module controller(
     assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] & ~Op[2] | (Funct3 == 3'b010));
     assign ALUControl = {Sub, ALUOp};
 
-    assign HpmAdd = ALUOp && (Funct3 == 3'b000) && ~Sub;
-    // assign HpmBranch = Branch;
-    assign HpmBranchTaken =
-        (Branch &
-            (
-                Eq & (Funct3 == 3'b000)     |
-                ~Eq & (Funct3 == 3'b001)    |
-                Lt & (Funct3 == 3'b100)     |
-                ~Lt & (Funct3 == 3'b101)    |
-                Ltu & (Funct3 == 3'b110)    |
-                ~Ltu & (Funct3 == 3'b111)
-            )
-        );
+    // assign HpmAdd = ALUOp && (Funct3 == 3'b000) && ~Sub;
+    // // assign HpmBranch = Branch;
+    // assign HpmBranchTaken =
+    //     (Branch &
+    //         (
+    //             Eq & (Funct3 == 3'b000)     |
+    //             ~Eq & (Funct3 == 3'b001)    |
+    //             Lt & (Funct3 == 3'b100)     |
+    //             ~Lt & (Funct3 == 3'b101)    |
+    //             Ltu & (Funct3 == 3'b110)    |
+    //             ~Ltu & (Funct3 == 3'b111)
+    //         )
+    //     );
 
-    // PCSrc logic
-    assign PCSrc = Jump | HpmBranchTaken;
+    // // PCSrc logic
+    // assign PCSrc = Jump | HpmBranchTaken;
 
-    // hpm[10]_hpm[9]_hpm[8]_hpm[7]_hpm[6]_hpm[5]_hpm[4]_hpm[3]
-    assign HpmSignal = {
-                ALUOp,                  // hpm[10]: # of R-type and I-type instrs
-                Jump,                   // hpm[9]: # of jumps
-                Op == 7'b011,           // hpm[8]: # of loads from data memory
-                MemWrite,               // hpm[7]: # of writes to data memory
-                RegWrite,               // hpm[6]: # of writes to RegFile
-                HpmBranchTaken,         // hpm[5]: # of branches taken
-                Branch,                 // hpm[4]: # of branches eval
-                HpmAdd                  // hpm[3]: # adds
-            };
+    // // hpm[10]_hpm[9]_hpm[8]_hpm[7]_hpm[6]_hpm[5]_hpm[4]_hpm[3]
+    // assign HpmSignal = {
+    //             ALUOp,                  // hpm[10]: # of R-type and I-type instrs
+    //             Jump,                   // hpm[9]: # of jumps
+    //             Op == 7'b011,           // hpm[8]: # of loads from data memory
+    //             MemWrite,               // hpm[7]: # of writes to data memory
+    //             RegWrite,               // hpm[6]: # of writes to RegFile
+    //             HpmBranchTaken,         // hpm[5]: # of branches taken
+    //             Branch,                 // hpm[4]: # of branches eval
+    //             HpmAdd                  // hpm[3]: # adds
+    //         };
 
 
     // MemWrite logic

@@ -59,7 +59,7 @@ module testbench;
 
     if (~reset) begin
 
-      $display("\nPC: %h \t Instr: %h \t IEUAdr: %h", PC, Instr, DataAdr); //// THIS is a really COOL LINE
+      // $display("\nPC: %h \t Instr: %h \t IEUAdr: %h", PC, Instr, DataAdr); //// THIS is a really COOL LINE
 
       // $display("MemEn: %b",
       //         MemEn
@@ -86,12 +86,12 @@ module testbench;
       //             dut.ieu.dp.rf.rf[3]);
 
 
-      $display("SrcA: %h, SrcB: %h, ALUResult: %h",
+      // $display("SrcA: %h, SrcB: %h, ALUResult: %h",
 
-                dut.ieu.dp.alu.SrcA,
-                dut.ieu.dp.alu.SrcB,
-                dut.ieu.dp.alu.ALUResult,
-              );
+      //           dut.ieu.dp.alu.SrcA,
+      //           dut.ieu.dp.alu.SrcB,
+      //           dut.ieu.dp.alu.ALUResult,
+      //         );
 
 
 
