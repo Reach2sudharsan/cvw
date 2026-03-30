@@ -13,7 +13,7 @@ module flopenr #(parameter WIDTH, parameter DEFAULT = 0) (
     always_ff @(posedge clk, posedge reset) begin
         if (reset)  Q <= DEFAULT;
         else if (flush)  Q <= 0;
-        else if (enable) Q <= D;
+        else if (enable) Q <= D; // eable is stall signal
 
     end
 

@@ -13,7 +13,7 @@ module controller(
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
-        output  logic [3:0]   WriteByteEn,
+        // output  logic [3:0]   WriteByteEn,
         // output  logic         PCSrc,
         output  logic         RegWrite,
         output  logic [1:0]   ALUSrc,
@@ -28,7 +28,6 @@ module controller(
 
         // considering just having a single N-bit signal for HPM counters
 
-        output logic [7:0]    HpmSignal,
         output logic          ALUOp
 
     `ifdef DEBUG
@@ -113,26 +112,26 @@ module controller(
     // MemWrite logic
     // assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
 
-    assign StoreType = (Op == 7'b0100011) ? Funct3[1:0] : 2'b11;
+    // assign StoreType = (Op == 7'b0100011) ? Funct3[1:0] : 2'b11;
 
-    always_comb begin
-        casez ({StoreType, IEUAdrb10})
-            4'b10_??: WriteByteEn = {(4){MemWrite}}; // sw
+    // always_comb begin
+    //     casez ({StoreType, IEUAdrb10})
+    //         4'b10_??: WriteByteEn = {(4){MemWrite}}; // sw
 
-            4'b01_0?: WriteByteEn = {2'b0, {(2){MemWrite}}}; // sh
-            4'b01_1?: WriteByteEn = {{(2){MemWrite}}, 2'b0}; // sh
+    //         4'b01_0?: WriteByteEn = {2'b0, {(2){MemWrite}}}; // sh
+    //         4'b01_1?: WriteByteEn = {{(2){MemWrite}}, 2'b0}; // sh
 
-            4'b00_00: WriteByteEn = {3'b0, MemWrite}; // sb
-            4'b00_01: WriteByteEn = {2'b0, MemWrite, 1'b0}; // sb
-            4'b00_10: WriteByteEn = {1'b0, MemWrite, 2'b0}; // sb
-            4'b00_11: WriteByteEn = {MemWrite, 3'b0}; // sb
-
-
-            default: WriteByteEn = {(4){MemWrite}};
+    //         4'b00_00: WriteByteEn = {3'b0, MemWrite}; // sb
+    //         4'b00_01: WriteByteEn = {2'b0, MemWrite, 1'b0}; // sb
+    //         4'b00_10: WriteByteEn = {1'b0, MemWrite, 2'b0}; // sb
+    //         4'b00_11: WriteByteEn = {MemWrite, 3'b0}; // sb
 
 
-        endcase
-    end
+    //         default: WriteByteEn = {(4){MemWrite}};
+
+
+    //     endcase
+    // end
 
     assign IsJalr = (Op == 7'b1100111) & (Funct3 == 3'b000);
 

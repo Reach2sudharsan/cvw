@@ -110,96 +110,96 @@
     .type  main, @function
 
 main:
-    j add_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j lb_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
 
 # R-type
 
-    return_add_test:
-        j sub_test
+    # return_add_test:
+    #     j sub_test
 
-    return_sub_test:
-        j slt_test
+    # return_sub_test:
+    #     j slt_test
 
-    return_slt_test:
-        j xor_test
+    # return_slt_test:
+    #     j xor_test
 
-    return_xor_test:
-        j or_test
+    # return_xor_test:
+    #     j or_test
 
-    return_or_test:
-        j and_test
+    # return_or_test:
+    #     j and_test
 
-    return_and_test:
-        j sll_test
+    # return_and_test:
+    #     j sll_test
 
-    return_sll_test:
-        j srl_test
+    # return_sll_test:
+    #     j srl_test
 
-    return_srl_test:
-        j sra_test
+    # return_srl_test:
+    #     j sra_test
 
-    return_sra_test:
-        j sltu_test
+    # return_sra_test:
+    #     j sltu_test
 
-    return_sltu_test:
-        j pass
+    # return_sltu_test:
+    #     j pass
 
 # # I-type
-#     return_addi_test:
-#         j slti_test
+    # return_addi_test:
+    #     j slti_test
 
-#     return_slti_test:
-#         j xori_test
+    # return_slti_test:
+    #     j xori_test
 
-#     return_xori_test:
-#         j ori_test
+    # return_xori_test:
+    #     j ori_test
 
-#     return_ori_test:
-#         j andi_test
+    # return_ori_test:
+    #     j andi_test
 
-#     return_andi_test:
-#         j slli_test
+    # return_andi_test:
+    #     j slli_test
 
-#     return_slli_test:
-#         j srli_test
+    # return_slli_test:
+    #     j srli_test
 
-#     return_srli_test:
-#         j srai_test
+    # return_srli_test:
+    #     j srai_test
 
-#     return_srai_test:
-#         j sltui_test
+    # return_srai_test:
+    #     j sltui_test
 
-#     return_sltui_test:
-#         j lb_test
+    # return_sltui_test:
+    #     j pass
 
-#     return_lb_test:
-#         j lbu_test
+    return_lb_test:
+        j lbu_test
 
-#     return_lbu_test:
-#         j lh_test
+    return_lbu_test:
+        j lh_test
 
-#     return_lh_test:
-#         j lhu_test
+    return_lh_test:
+        j lhu_test
 
-#     return_lw_test:
-#         j lhu_test
+    return_lw_test:
+        j lhu_test
 
-#     return_lhu_test:
-#         j jalr_test
+    return_lhu_test:
+        j pass
 
-#     return_jalr_test:
-#         j pass
+    # return_jalr_test:
+    #     j pass
 
-# # S-type
-#     return_sb_test:
-#         j sh_test
+# S-type
+    # return_sb_test:
+    #     j sh_test
 
-#     return_sh_test:
-#         j sw_test
+    # return_sh_test:
+    #     j sw_test
 
-#     return_sw_test:
-#         j pass
+    # return_sw_test:
+    #     j pass
 
 # # B-type
 #     return_beq_test:
@@ -225,8 +225,8 @@ main:
 #         j pass
 
 # # U-type
-#     return_lui_test:
-#         j auipc_test
+    # return_lui_test:
+    #     j pass
 
 #     return_auipc_test:
 #         j pass

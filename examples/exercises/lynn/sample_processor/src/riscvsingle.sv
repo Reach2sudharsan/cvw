@@ -27,8 +27,10 @@ module riscvsingle (
 
     logic [31:0] CSRReadData;
 
-    ifu ifu(.clk, .reset, .PCSrc, .IEUAdr, .PC, .PCPlus4);
-    ieu ieu(.clk, .reset, .Instr, .PC, .PCPlus4, .PCSrc, .WriteByteEn,
+    logic StallF;
+
+    ifu ifu(.clk, .reset, .PCSrc, .StallF, .IEUAdr, .PC, .PCPlus4);
+    ieu ieu(.clk, .reset, .Instr, .PC, .StallF, .PCPlus4, .PCSrc, .WriteByteEn,
             .IEUAdr, .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal
         );
 

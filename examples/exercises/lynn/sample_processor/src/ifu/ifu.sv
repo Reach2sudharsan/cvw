@@ -5,6 +5,7 @@
 module ifu(
         input   logic           clk, reset,
         input   logic           PCSrc,
+        input   logic           StallF,
         input   logic [31:0]    IEUAdr,
         output  logic [31:0]    PC, PCPlus4
     );
@@ -25,7 +26,7 @@ module ifu(
 
     always_ff @(posedge clk or posedge reset) begin
     if (reset)  PC <= entry_addr;
-    else        PC <= PCNext;
+    else if (!StallF)   PC <= PCNext;
     end
 
     adder pcadd4(PC, 32'd4, PCPlus4);

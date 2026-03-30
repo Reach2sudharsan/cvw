@@ -59,7 +59,45 @@ module testbench;
 
     if (~reset) begin
 
-      // $display("\nPC: %h \t Instr: %h \t IEUAdr: %h", PC, Instr, DataAdr); //// THIS is a really COOL LINE
+      $display("\n PCF: %h \t PCD: %h \t PCE: %h \t Instr: %h \t IEUAdrE: %h \t PCPlus4E: %h \t PCSrE: %h \t JumpE: %h \t HpmBrachTakenE: %h \t StallF: %h  \t FlushE: %h",
+                dut.ieu.dp.PCF,
+                 dut.ieu.dp.PCD,
+                 dut.ieu.dp.PCE,
+                  Instr,
+                   dut.ieu.dp.IEUAdrE,
+                    dut.ieu.dp.PCPlus4E,
+                    dut.ieu.dp.PCSrcE,
+                    dut.ieu.dp.JumpE,
+                    dut.ieu.dp.HpmBranchTakenE,
+                    dut.ieu.dp.StallF,
+                    dut.ieu.dp.FlushE); //// THIS is a really COOL LINE
+      $display(
+        "\n SizedResultW: %h \t ResultW: %h \t RD1E: %h \t RD2E: %h \t SrcAE: %h \t SrcBE: %h \t ALUResultE: %h \t ALUResultM: %h \t ALUResultW: %h \t ResultSrcW: %h \t RegWriteW: %h \t RdW: %h \t IEUResultE: %h \t IEUResultM: %h \t IEUResultW: %h \t ALUResultSrcE: %h \t Branch: %h \t Lt: %h \t Funct3E: %h \t ForwardAE: %h  \t ForwardBE: %h",
+        dut.ieu.dp.SizedResultW,
+        dut.ieu.dp.ResultW,
+        dut.ieu.dp.RD1E,
+        dut.ieu.dp.RD2E,
+        dut.ieu.dp.SrcAE,
+        dut.ieu.dp.SrcBE,
+        dut.ieu.dp.ALUResultE,
+        dut.ieu.dp.ALUResultM,
+        dut.ieu.dp.ALUResultW,
+        dut.ieu.dp.ResultSrcW,
+        dut.ieu.dp.RegWriteW,
+        dut.ieu.dp.RdW,
+        dut.ieu.dp.IEUResultE,
+        dut.ieu.dp.IEUResultM,
+        dut.ieu.dp.IEUResultW,
+        dut.ieu.dp.ALUResultSrcE,
+        dut.ieu.dp.BranchE,
+        dut.ieu.dp.Lt,
+        dut.ieu.dp.Funct3E,
+        dut.ieu.dp.ForwardAE,
+        dut.ieu.dp.ForwardBE
+
+
+
+      );
 
       // $display("MemEn: %b",
       //         MemEn

@@ -19,13 +19,21 @@ add_test:
         li   t3, 12
         beq  t2, t3, test2
         j Fail_Add_1
+        #
+        # j return_add_test
 
     test2:
         # 19 + 23 = 42
         li   t0, 19
         li   t1, 23
+
         add  t2, t0, t1
         li   t3, 42
+
+
+
+
+
         beq  t2, t3, test3
         j Fail_Add_2
 
@@ -33,8 +41,18 @@ add_test:
         # 20 + 40 = 60
         li   t0, 20
         li   t1, 40
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 60
+
+
+
+
+
         beq  t2, t3, test4
         j Fail_Add_3
 
@@ -42,8 +60,18 @@ add_test:
         # 100 + 200 = 300
         li   t0, 100
         li   t1, 200
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 300
+
+
+
+
+
         beq  t2, t3, test5
         j Fail_Add_4
 
@@ -51,8 +79,18 @@ add_test:
         # 0 + 0 = 0
         li   t0, 0
         li   t1, 0
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 0
+
+
+
+
+
         beq  t2, t3, test6
         j Fail_Add_5
 
@@ -60,8 +98,18 @@ add_test:
         # 1 + 1 = 2
         li   t0, 1
         li   t1, 1
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 2
+
+
+
+
+
         beq  t2, t3, test7
         j Fail_Add_6
 
@@ -69,8 +117,18 @@ add_test:
         # 127 + 1 = 128
         li   t0, 127
         li   t1, 1
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 128
+
+
+
+
+
         beq  t2, t3, test8
         j Fail_Add_7
 
@@ -78,8 +136,18 @@ add_test:
         # 50 + 75 = 125
         li   t0, 50
         li   t1, 75
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 125
+
+
+
+
+
         beq  t2, t3, test9
         j Fail_Add_8
 
@@ -87,8 +155,18 @@ add_test:
         # 255 + 1 = 256
         li   t0, 255
         li   t1, 1
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 256
+
+
+
+
+
         beq  t2, t3, test10
         j Fail_Add_9
 
@@ -96,8 +174,18 @@ add_test:
         # 1000 + 1000 = 2000
         li   t0, 1000
         li   t1, 1000
+
+
+
+
+
         add  t2, t0, t1
         li   t3, 2000
+
+
+
+
+
         beq  t2, t3, pass
         j Fail_Add_10
 
