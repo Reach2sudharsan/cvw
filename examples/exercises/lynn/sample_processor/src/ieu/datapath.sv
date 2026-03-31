@@ -19,17 +19,20 @@ module datapath(
         input   logic [1:0]     ALUControlD,
         input   logic           BranchD,
         input   logic           MemWriteD,
+        input   logic           MemEnD,
+
         input   logic [31:0]    CSRReadDataM, // CSR Read
         // output  logic           Eq, Lt, Ltu,
         input   logic [31:0]    PC, PCPlus4,
         input   logic [31:0]    Instr,
-        output  logic [31:0]    IEUAdrE, WriteDataM,
+        output  logic [31:0]    IEUAdrE, IEUAdrM, WriteDataM,
         output  logic [1:0]     IEUAdrb10M,
         output  logic           PCSrcE,
         // output  logic [31:0]    R1, // CSR
         output  logic [31:0]    InstrD,
         output  logic [7:0]       HpmSignalM,
         output  logic [3:0]   WriteByteEnM,
+        output  logic          MemEnM,
         output logic            StallF, // should GO INTO THE IFU
         input   logic [31:0]    ReadDataM
     );
@@ -62,7 +65,7 @@ module datapath(
     logic IsJalrE;
     logic [1:0] ResultSrcE, ResultSrcM, ResultSrcW, ALUControlE;
 
-    logic [31:0] IEUAdrM, IEUAdrW;
+    logic [31:0] IEUAdrW;
 
 
     logic HpmAddE, HpmBranchTakenE, Eq, Lt, Ltu;
@@ -82,6 +85,8 @@ module datapath(
     logic    lwStall, StallD, FlushD, FlushE;
 
     logic [31:0] Aout, Bout;
+
+    logic MenEnE;
 
 
     hazard_unit hzunit(
@@ -174,6 +179,8 @@ module datapath(
 
     flopenr #(1) D2E_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemWriteD), .Q(MemWriteE));
     flopenr #(1) D2E_ALUResultSrc(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(ALUResultSrcD), .Q(ALUResultSrcE));
+    flopenr #(1) D2E_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemEnD), .Q(MemEnE));
+
 
 
 
@@ -203,6 +210,9 @@ module datapath(
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
 
+    logic [31:0] ImmResult;
+    logic [31:0] ImmResult2;
+
     alu alu(
         .SrcA(SrcAE),
         .SrcB(SrcBE),
@@ -213,14 +223,18 @@ module datapath(
         .Funct7b5(Funct7b5E),
         .IsJalr(IsJalrE),
         .ALUResult(ALUResultE),
-        .IEUAdr(IEUAdrE)
+        .IEUAdr(ImmResult2)
     );
 
     // Need to add Jump Flag
 
 
     mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE); // jumpmux // maybe not needed
-    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE); // now takes in jumpMuxResult instead of PCPlus4
+    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, ImmResult); // now takes in jumpMuxResult instead of PCPlus4
+    mux2 #(32) storeaddrmux(ImmResult, SrcAE, |ForwardAE & MemWriteE, IEUResultE);
+
+    mux2 #(32) ieuaddrmux(ImmResult2, SrcAE, |ForwardAE & MemWriteE, IEUAdrE);
+
     // mux2 #(32) resultmux(IEUResult, ReadData, ResultSrc, Result); // change to mux3 for csr
     assign SubE = ALUControlE[1];
     assign HpmAddE = ALUOpE && (Funct3E == 3'b000) && ~SubE;
@@ -255,17 +269,17 @@ module datapath(
 
     always_comb begin
         casez ({Funct3E[1:0], IEUAdrE[1:0]})
-            4'b10_??: WriteDataE = RD2E; // sw
+            4'b10_??: WriteDataE = Bout; // sw
 
-            4'b01_0?: WriteDataE = {16'b0, RD2E[15:0]}; // sh
-            4'b01_1?: WriteDataE = {RD2E[15:0], 16'b0}; // sh
+            4'b01_0?: WriteDataE = {16'b0, Bout[15:0]}; // sh
+            4'b01_1?: WriteDataE = {Bout[15:0], 16'b0}; // sh
 
-            4'b00_00: WriteDataE = {24'b0, RD2E[7:0]}; // sb
-            4'b00_01: WriteDataE = {16'b0, RD2E[7:0], 8'b0}; // sb
-            4'b00_10: WriteDataE = {8'b0, RD2E[7:0], 16'b0}; // sb
-            4'b00_11: WriteDataE = {RD2E[7:0], 24'b0}; // sb
+            4'b00_00: WriteDataE = {24'b0, Bout[7:0]}; // sb
+            4'b00_01: WriteDataE = {16'b0, Bout[7:0], 8'b0}; // sb
+            4'b00_10: WriteDataE = {8'b0, Bout[7:0], 16'b0}; // sb
+            4'b00_11: WriteDataE = {Bout[7:0], 24'b0}; // sb
 
-            default: WriteDataE = RD2E;
+            default: WriteDataE = Bout;
 
         endcase
     end
@@ -282,6 +296,7 @@ module datapath(
     flopenr #(7) E2M_Op(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(OpE), .Q(OpM));
     flopenr #(1) E2M_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemWriteE), .Q(MemWriteM));
     flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultM));
+    flopenr #(1) E2M_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemEnE), .Q(MemEnM));
 
 
 

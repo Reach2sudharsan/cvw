@@ -20,7 +20,7 @@ module riscvsingle (
         output  logic [3:0]     WriteByteEn  // strobes, 1 hot stating weather a byte should be written on a store
     );
 
-    logic [31:0] PCPlus4;
+    logic [31:0] IEUAdrE,PCPlus4;
     logic PCSrc;
     logic Load;
     logic [7:0] HpmSignal;
@@ -29,9 +29,9 @@ module riscvsingle (
 
     logic StallF;
 
-    ifu ifu(.clk, .reset, .PCSrc, .StallF, .IEUAdr, .PC, .PCPlus4);
+    ifu ifu(.clk, .reset, .PCSrc, .StallF, .IEUAdr(IEUAdrE), .PC, .PCPlus4);
     ieu ieu(.clk, .reset, .Instr, .PC, .StallF, .PCPlus4, .PCSrc, .WriteByteEn,
-            .IEUAdr, .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal
+            .IEUAdrE(IEUAdrE), .IEUAdrM(IEUAdr), .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal
         );
 
     privileged prv(.clk, .reset, .Instr, .HpmSignal, .csr_rdata(CSRReadData));

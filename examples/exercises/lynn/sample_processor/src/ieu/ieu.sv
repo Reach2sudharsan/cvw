@@ -10,7 +10,7 @@ module ieu(
         input   logic [31:0]    PC, PCPlus4,
         output  logic           PCSrc,
         output  logic [3:0]     WriteByteEn,
-        output  logic [31:0]    IEUAdr, WriteData,
+        output  logic [31:0]    IEUAdrE,IEUAdrM, WriteData,
         input   logic [31:0]    ReadData,
         input   logic [31:0]    CSRReadData,
         output  logic           MemEn,
@@ -19,7 +19,7 @@ module ieu(
         // output  logic [31:0]    R1,
     );
 
-    logic RegWrite, Jump, Branch, MemWrite, IsJalr, Eq, Lt, Ltu, ALUResultSrc;
+    logic RegWrite, Jump, Branch, MemWrite, IsJalr, Eq, Lt, Ltu, ALUResultSrc, MemEnD;
     logic [31:0] InstrD;
     logic [1:0] ResultSrc;
     logic [1:0] ALUSrc;
@@ -40,7 +40,7 @@ module ieu(
         .ALUSrc(ALUSrc),
         .ImmSrc(ImmSrc),
         .ALUControl(ALUControl),
-        .MemEn(MemEn),
+        .MemEn(MemEnD),
         .Jump(Jump),
         .IsJalr(IsJalr),
         .Branch(Branch),
@@ -66,16 +66,19 @@ module ieu(
         .BranchD(Branch),
         .MemWriteD(MemWrite),
         .CSRReadDataM(CSRReadData),
+        .MemEnD(MemEnD),
         .PC(PC),
         .PCPlus4(PCPlus4),
         .Instr(Instr),
         .ReadDataM(ReadData),
-        .IEUAdrE(IEUAdr),
+        .IEUAdrE(IEUAdrE),
+        .IEUAdrM(IEUAdrM),
         .WriteDataM(WriteData),
         .IEUAdrb10M(IEUAdrb10),
         .PCSrcE(PCSrc),
         .InstrD(InstrD),
         .WriteByteEnM(WriteByteEn),
+        .MemEnM(MemEn),
         .HpmSignalM(HpmSignal),
         .StallF(StallF)
     );

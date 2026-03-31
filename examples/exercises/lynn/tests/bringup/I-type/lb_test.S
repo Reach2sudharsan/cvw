@@ -29,6 +29,11 @@ test1:
     la t0, test_values
     lb t1, 0(t0)
     li t2, -5
+    nop
+    nop
+    nop
+    nop
+    nop
     beq t1, t2, test2
     j Fail_Lb_1
 

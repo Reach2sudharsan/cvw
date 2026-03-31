@@ -110,7 +110,7 @@
     .type  main, @function
 
 main:
-    j lb_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j sw_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
 
 # R-type
@@ -173,24 +173,27 @@ main:
     # return_sltui_test:
     #     j pass
 
-    return_lb_test:
-        j lbu_test
+    # return_lb_test:
+    #     j lbu_test
 
-    return_lbu_test:
-        j lh_test
+    # return_lbu_test:
+    #     j lh_test
 
-    return_lh_test:
-        j lhu_test
+    # return_lh_test:
+    #     j lhu_test
 
-    return_lw_test:
-        j lhu_test
+    # return_lw_test:
+    #     j lhu_test
 
-    return_lhu_test:
-        j pass
+    # return_lhu_test:
+    #     j pass
 
+
+// FAILED
     # return_jalr_test:
     #     j pass
 
+// ALL S-TYPE FAILED
 # S-type
     # return_sb_test:
     #     j sh_test
@@ -198,35 +201,36 @@ main:
     # return_sh_test:
     #     j sw_test
 
-    # return_sw_test:
-    #     j pass
+    return_sw_test:
+        j pass
 
 # # B-type
-#     return_beq_test:
-#         j bne_test
+    # return_beq_test:
+    #     j bne_test
 
-#     return_bne_test:
-#         j blt_test
+    # return_bne_test:
+    #     j blt_test
 
-#     return_blt_test:
-#         j bltu_test
+    # return_blt_test:
+    #     j bltu_test
 
-#     return_bltu_test:
-#         j bge_test
+    # return_bltu_test:
+    #     j bge_test
 
-#     return_bge_test:
-#         j bgeu_test
+    # return_bge_test:
+    #     j bgeu_test
 
-#     return_bgeu_test:
-#         j pass
+    # return_bgeu_test:
+    #     j pass
 
+// FAILED
 # # J-type
-#     return_jal_test:
-#         j pass
+    # return_jal_test:
+    #     j pass
 
 # # U-type
     # return_lui_test:
-    #     j pass
+    #     j auipc_test
 
-#     return_auipc_test:
-#         j pass
+    # return_auipc_test:
+    #     j pass
