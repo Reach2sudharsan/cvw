@@ -33,8 +33,10 @@ module datapath(
         output  logic [7:0]       HpmSignalM,
         output  logic [3:0]   WriteByteEnM,
         output  logic          MemEnM,
-        output logic            StallF, // should GO INTO THE IFU
-        input   logic [31:0]    ReadDataM
+        output  logic            StallF, // should GO INTO THE IFU
+        output  logic [11:0] csr_addrM,
+        input   logic [31:0]    ReadDataM,
+        input   logic
     );
 
     logic [31:0] ImmExtD, ImmExtE;
@@ -73,11 +75,11 @@ module datapath(
 
     logic [7:0] HpmSignalE;
 
-    logic [11:0] CsrAdrF, CsrAdrD, CsrAdrE, CsrAdrM;
+    // logic [11:0] CsrAdrF, CsrAdrD, CsrAdrE;
 
     logic [31:0] WriteDataE, ReadDataW, CSRReadDataW;
 
-    logic StoreTypeM;
+    logic [1:0] StoreTypeM;
 
     logic MemWriteE, MemWriteM;
 
@@ -87,6 +89,8 @@ module datapath(
     logic [31:0] Aout, Bout;
 
     logic MenEnE;
+
+    logic ALUResultSrcE;
 
 
     hazard_unit hzunit(
@@ -115,7 +119,7 @@ module datapath(
     assign InstrF = Instr;
     assign PCF = PC;
     assign PCPlus4F = PCPlus4;
-    assign CsrAdrF = InstrF[31:20];
+    // assign CsrAdrF = InstrF[31:20];
     // assign Funct3F = Funct3;
     // assign Funct7b0F = Funct7b0;
     // assign Funct7b5F = Funct7b5;
@@ -127,7 +131,7 @@ module datapath(
     flopenr #(32) F2D_instr(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(InstrF), .Q(InstrD));
     flopenr #(32) F2D_PC(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(PCF), .Q(PCD));
     flopenr #(32) F2D_PCPlus4(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(PCPlus4F), .Q(PCPlus4D));
-    flopenr #(12) F2D_CsrAdr(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(CsrAdrF), .Q(CsrAdrD));
+    // flopenr #(12) F2D_CsrAdr(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(CsrAdrF), .Q(CsrAdrD));
 
     // flopenr #(3) F2D_Funct3(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(Funct3F), .Q(Funct3D));
     // flopenr #(1) F2D_Funct7b0(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(Funct7b0F), .Q(Funct7b0D));
@@ -149,6 +153,7 @@ module datapath(
     assign Funct7b0D = InstrD[25];
     assign Funct7b5D = InstrD[30];
     assign OpD = InstrD[6:0];
+
 
 
     regfile rf(.clk, .WE3(RegWriteW), .A1(Rs1D), .A2(Rs2D),
@@ -175,12 +180,15 @@ module datapath(
     flopenr #(1) D2E_Funct7b5(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(Funct7b5D), .Q(Funct7b5E));
     flopenr #(7) D2E_Op(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(OpD), .Q(OpE));
 
-    flopenr #(12) D2E_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(CsrAdrD), .Q(CsrAdrE));
+    // flopenr #(12) D2E_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(CsrAdrD), .Q(CsrAdrE));
 
     flopenr #(1) D2E_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemWriteD), .Q(MemWriteE));
     flopenr #(1) D2E_ALUResultSrc(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(ALUResultSrcD), .Q(ALUResultSrcE));
     flopenr #(1) D2E_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemEnD), .Q(MemEnE));
 
+    logic [11:0] csr_addrE;
+
+    flopenr #(12) D2E_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(InstrD[31:20]), .Q(csr_addrE));
 
 
 
@@ -204,14 +212,17 @@ module datapath(
 
 
     // IEUResult
+
+    // TWO NEW MUXES
     mux3 #(32) forwardAmux(RD1E, SizedResultW, IEUResultM, ForwardAE, Aout);
     mux3 #(32) forwardBmux(RD2E, SizedResultW, IEUResultM, ForwardBE, Bout);
 
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
 
-    logic [31:0] ImmResult;
-    logic [31:0] ImmResult2;
+
+    // logic [31:0] ImmResult;
+    // logic [31:0] ImmResult2;
 
     alu alu(
         .SrcA(SrcAE),
@@ -223,17 +234,21 @@ module datapath(
         .Funct7b5(Funct7b5E),
         .IsJalr(IsJalrE),
         .ALUResult(ALUResultE),
-        .IEUAdr(ImmResult2)
+        .IEUAdr(IEUAdrE)
     );
 
     // Need to add Jump Flag
 
 
-    mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE); // jumpmux // maybe not needed
-    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, ImmResult); // now takes in jumpMuxResult instead of PCPlus4
-    mux2 #(32) storeaddrmux(ImmResult, SrcAE, |ForwardAE & MemWriteE, IEUResultE);
+    mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE); // mux for lui and jalr
+    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE); // now takes in jumpMuxResult instead of PCPlus4
 
-    mux2 #(32) ieuaddrmux(ImmResult2, SrcAE, |ForwardAE & MemWriteE, IEUAdrE);
+    // Store and ALU memory address generation must always use ALU result.
+    // Avoid bypassing IEUAdrE to SrcAE for store writes: address should remain ALU-calculated.
+    // assign IEUAdrE = ImmResult2;
+
+    // reset storeaddrmux path (not needed for memory address path)
+    // mux2 #(32) storeaddrmux(ImmResult, SrcAE, |ForwardAE & MemWriteE, IEUResultE);
 
     // mux2 #(32) resultmux(IEUResult, ReadData, ResultSrc, Result); // change to mux3 for csr
     assign SubE = ALUControlE[1];
@@ -287,7 +302,7 @@ module datapath(
 
     // Execute to Memory Datapath registers
     flopenr #(32) E2M_ALUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(ALUResultE), .Q(ALUResultM));
-    flopenr #(12) E2M_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(CsrAdrE), .Q(CsrAdrM));
+    // flopenr #(12) E2M_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(CsrAdrE), .Q(CsrAdrM));
     flopenr #(8) E2M_HpmSignal(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(HpmSignalE), .Q(HpmSignalM));
     flopenr #(32) E2M_WriteData(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(WriteDataE), .Q(WriteDataM));
     flopenr #(5) E2M_Rd(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(RdE), .Q(RdM));
@@ -296,9 +311,8 @@ module datapath(
     flopenr #(7) E2M_Op(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(OpE), .Q(OpM));
     flopenr #(1) E2M_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemWriteE), .Q(MemWriteM));
     flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultM));
-    flopenr #(1) E2M_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(MemEnE), .Q(MemEnM));
-
-
+    flopenr #(1) E2M_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemEnE), .Q(MemEnM));
+    flopenr #(12) E2M_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(csr_addrE), .Q(csr_addrM));
 
 
 

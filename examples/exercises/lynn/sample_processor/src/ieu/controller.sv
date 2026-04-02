@@ -24,7 +24,8 @@ module controller(
         output  logic         IsJalr,
         output  logic         Branch,
         output  logic         MemWrite,
-        // output  logic         CSRWrite;
+        // output  logic         CSR
+        // output  logic         CSRSrc;
 
         // considering just having a single N-bit signal for HPM counters
 
@@ -76,7 +77,7 @@ module controller(
 
     // ALU Control Logic
     // assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] | (Funct3 == 3'b010)); // subtract or SLT
-    assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5] & ~Op[2] | (Funct3 == 3'b010));
+    assign Sub = ALUOp & (Op[5:0] != 6'b100111) & ((Funct3 == 3'b000) & Funct7b5 & Op[5] & ~Op[2] | (Funct3 == 3'b010));
     assign ALUControl = {Sub, ALUOp};
 
     // assign HpmAdd = ALUOp && (Funct3 == 3'b000) && ~Sub;

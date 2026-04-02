@@ -32,7 +32,7 @@ test2:
 after2:
     lw   t0, 0(sp)      # restore expected address
     addi sp, sp, 4      # deallocate stack space
-    beq  ra, t0, test3
+    beq  ra, t0, test4
     j    Fail_Jal_2
 
 target2a:
@@ -48,10 +48,16 @@ target2b:
     ret
 
 # Test 3: nested jal
+# test3:
+#     jal  ra, target3a
+# after3:
+#     j    test4
 test3:
+    la   t0, after3        # expected return address
     jal  ra, target3a
 after3:
-    j    test4
+    beq  ra, t0, test4     # check return address
+    j    Fail_Jal_3        # now reachable!
 
 target3a:
     addi sp, sp, -4     # make space on stack

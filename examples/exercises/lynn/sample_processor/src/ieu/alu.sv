@@ -47,9 +47,9 @@ module alu(
 
 
     always_comb begin
-        mul_tmp = $signed({{32{SrcA[31]}}, SrcA}) * $signed({{32{SrcB[31]}}, SrcB}); // 64-bit product
-        mulhsu_tmp = $signed({{32{SrcA[31]}}, SrcA}) * $unsigned({32'b0, SrcB});   // signed × unsigned
-        mulhu_tmp = {32'b0, SrcA} * {32'b0, SrcB};;             // unsigned × unsigned
+        mul_tmp = 64'b0;//$signed({{32{SrcA[31]}}, SrcA}) * $signed({{32{SrcB[31]}}, SrcB}); // 64-bit product
+        mulhsu_tmp = 64'b0;//$signed({{32{SrcA[31]}}, SrcA}) * $unsigned({32'b0, SrcB});   // signed × unsigned
+        mulhu_tmp = 64'b0;//{32'b0, SrcA} * {32'b0, SrcB};;             // unsigned × unsigned
 
         case (ALUFunct)
             3'b000: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mul_tmp[31:0] : Sum; // add or sub OR mul

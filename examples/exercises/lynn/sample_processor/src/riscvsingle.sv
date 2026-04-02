@@ -29,12 +29,14 @@ module riscvsingle (
 
     logic StallF;
 
+    logic [11:0] csr_addrM;
+
     ifu ifu(.clk, .reset, .PCSrc, .StallF, .IEUAdr(IEUAdrE), .PC, .PCPlus4);
     ieu ieu(.clk, .reset, .Instr, .PC, .StallF, .PCPlus4, .PCSrc, .WriteByteEn,
-            .IEUAdrE(IEUAdrE), .IEUAdrM(IEUAdr), .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal
+            .IEUAdrE(IEUAdrE), .IEUAdrM(IEUAdr), .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal, .csr_addrM
         );
 
-    privileged prv(.clk, .reset, .Instr, .HpmSignal, .csr_rdata(CSRReadData));
+    privileged prv(.clk, .reset, .csr_addr(csr_addrM), .HpmSignal, .csr_rdata(CSRReadData));
 
 
     assign WriteEn = |WriteByteEn;

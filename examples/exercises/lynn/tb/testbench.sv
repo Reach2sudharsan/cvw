@@ -72,7 +72,7 @@ module testbench;
                     dut.ieu.dp.StallF,
                     dut.ieu.dp.FlushE); //// THIS is a really COOL LINE
       $display(
-        "\n Aout: %h \t Bout: %h IEUAdrE: %h \t IEUAdrM: %h \t ReadDataM: %h SizedResultW: %h \t ResultW: %h \t RD1E: %h \t RD2E: %h \t SrcAE: %h \t SrcBE: %h \t ALUResultE: %h \t ALUResultM: %h \t ALUResultW: %h \t ResultSrcW: %h \t RegWriteW: %h \t RdW: %h \t IEUResultE: %h \t IEUResultM: %h \t IEUResultW: %h \t ALUResultSrcE: %h \t Branch: %h \t Lt: %h \t Funct3E: %h \t ForwardAE: %h  \t ForwardBE: %h \t MemWriteE: %h \t MemWriteM: %h  \t WriteDataE: %h \t WriteDataM: %h \t ImmExtE: %h",
+        "Aout: %h \t Bout: %h IEUAdrE: %h \t IEUAdrM: %h \t ReadDataM: %h SizedResultW: %h \t ResultW: %h \t RD1E: %h \t RD2E: %h \t SrcAE: %h \t SrcBE: %h \t ALUResultE: %h \t ALUResultM: %h \t ALUResultW: %h \t ResultSrcW: %h \t RegWriteW: %h \t RdW: %h \t IEUResultE: %h \t IEUResultM: %h \t IEUResultW: %h \t ALUResultSrcE: %h \t Branch: %h \t Lt: %h \t Funct3E: %h \t ForwardAE: %h  \t ForwardBE: %h \t MemWriteE: %h \t MemWriteM: %h  \t WriteDataE: %h \t WriteDataM: %h \t ImmExtE: %h",
 
         dut.ieu.dp.Aout,
         dut.ieu.dp.Bout,
@@ -109,6 +109,25 @@ module testbench;
         dut.ieu.dp.WriteDataM,
         dut.ieu.dp.ImmExtE
       );
+
+      $display(
+
+          "ALUSrcE %h \t ForwardAE %h \t ForwardBE %h \t Sub %h \t ra %h \t ReadDataM %h \t WriteByteEnM %h \t StoreTypeM %h \t IEUAdrb10M %h \t Rs2E %h \t RdW %h \t CSRReadDataM %h",
+          dut.ieu.dp.ALUSrcE,
+          dut.ieu.dp.ForwardAE,
+          dut.ieu.dp.ForwardBE,
+          dut.ieu.dp.alu.Sub,
+          dut.ieu.dp.rf.rf[1],
+          dut.ieu.dp.ReadDataM,
+          dut.ieu.dp.WriteByteEnM,
+          dut.ieu.dp.StoreTypeM,
+          dut.ieu.dp.IEUAdrb10M,
+          dut.ieu.dp.Rs2E,
+          dut.ieu.dp.RdW,
+          dut.ieu.dp.csr_addrM
+      );
+
+
 
       // $display(
       //   "\n t0: %h",

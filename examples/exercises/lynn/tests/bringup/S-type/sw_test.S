@@ -20,7 +20,7 @@ pretest:
     sw t0, 0(sp)
     li t0, 200
     sw t0, 8(sp)
-    li t0, 300
+    li t0, 900
     sw t0, 16(sp)
     li t0, 400
     sw t0, 24(sp)
@@ -55,7 +55,7 @@ test2:
 
 test3:
     lw t0, 16(sp)
-    li t1, 300
+    li t1, 900
     beq t0, t1, test4
     j Fail_Sw_3
 

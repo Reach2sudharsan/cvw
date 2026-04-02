@@ -15,7 +15,8 @@ module ieu(
         input   logic [31:0]    CSRReadData,
         output  logic           MemEn,
         output  logic [7:0]     HpmSignal,
-        output  logic StallF
+        output  logic StallF,
+        output  logic [11:0]    csr_addrM
         // output  logic [31:0]    R1,
     );
 
@@ -80,6 +81,7 @@ module ieu(
         .WriteByteEnM(WriteByteEn),
         .MemEnM(MemEn),
         .HpmSignalM(HpmSignal),
-        .StallF(StallF)
+        .StallF(StallF),
+        .csr_addrM(csr_addrM)
     );
 endmodule
