@@ -35,8 +35,8 @@ module datapath(
         output  logic          MemEnM,
         output  logic            StallF, // should GO INTO THE IFU
         output  logic [11:0] csr_addrM,
-        input   logic [31:0]    ReadDataM,
-        input   logic
+        input   logic [31:0]    ReadDataM
+        // input   logic
     );
 
     logic [31:0] ImmExtD, ImmExtE;
@@ -214,8 +214,15 @@ module datapath(
     // IEUResult
 
     // TWO NEW MUXES
-    mux3 #(32) forwardAmux(RD1E, SizedResultW, IEUResultM, ForwardAE, Aout);
-    mux3 #(32) forwardBmux(RD2E, SizedResultW, IEUResultM, ForwardBE, Bout);
+
+    logic [31:0] ForwardMA;
+    logic [31:0] ForwardMB;
+
+    mux2 #(32) forwardMAmUX(IEUResultM, CSRReadDataM, ResultSrcM[1], ForwardMA);
+    mux2 #(32) forwardMBmUX(IEUResultM, CSRReadDataM, ResultSrcM[1], ForwardMB);
+
+    mux3 #(32) forwardAmux(RD1E, SizedResultW, ForwardMA, ForwardAE, Aout);
+    mux3 #(32) forwardBmux(RD2E, SizedResultW, ForwardMB, ForwardBE, Bout);
 
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
