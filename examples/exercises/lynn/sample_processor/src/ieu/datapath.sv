@@ -194,8 +194,8 @@ module datapath(
         .SrcB(SrcBE),
         .ALUControl(ALUControlE),
         .Funct3(Funct3E),
-        // .Op(OpE), --> originally used for Zmmul
-        // .Funct7b0(Funct7b0E), --> originally used for Zmmul
+        .Op(OpE), // --> originally used for Zmmul
+        .Funct7b0(Funct7b0E), // --> originally used for Zmmul
         .Funct7b5(Funct7b5E),
         .IsJalr(IsJalrE),
         .ALUResult(ALUResultE),

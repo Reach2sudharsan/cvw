@@ -32,7 +32,7 @@ always_ff @(posedge clk or posedge reset) begin
     end else begin
         rdcycle  <= rdcycle + 1;
         rdtime   <= rdtime + 1;
-        rdinsret <= rdinsret + 1;
+        rdinsret <= rdinsret + (HpmSignal[1] | HpmSignal[3] | HpmSignal[4] | HpmSignal[6]);
 
         if (HpmSignal[0]) hpmcounter[3]  <= hpmcounter[3]  + 1; // add/addi
         if (HpmSignal[1]) hpmcounter[4]  <= hpmcounter[4]  + 1; // branch evaluated
