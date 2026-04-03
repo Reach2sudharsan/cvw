@@ -1,5 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
+// flopenr.sv
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module flopenr #(parameter WIDTH, parameter DEFAULT = 0) (
         input   logic               clk,

@@ -1,6 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// sgopalakrishnan@g.hmc.edu 2026
+// mux3.sv
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module mux3 #(parameter WIDTH) (
         input   logic [WIDTH-1:0]   A,

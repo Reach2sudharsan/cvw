@@ -1,6 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020 kacassidy@hmc.edu 2025
+// ifu.sv
+// RISC-V pipelined processor
+// sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module ifu(
         input   logic           clk, reset,

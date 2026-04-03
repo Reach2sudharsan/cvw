@@ -1,44 +1,81 @@
 // riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020 kacassidy@hmc.edu 2025
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 `include "parameters.svh"
 
 module riscvsingle (
-        input   logic           clk,
-        input   logic           reset,
+    input  logic          clk,
+    input  logic          reset,
 
-        output  logic [31:0]    PC,  // instruction memory target address
-        input   logic [31:0]    Instr, // instruction memory read data
+    // Instruction memory interface
+    output logic [31:0]   PC,
+    input  logic [31:0]   Instr,
 
-        output  logic [31:0]    IEUAdr,  // data memory target address
-        input   logic [31:0]    ReadData, // data memory read data
-        output  logic [31:0]    WriteData, // data memory write data
+    // Data memory interface
+    output logic [31:0]   IEUAdr,
+    input  logic [31:0]   ReadData,
+    output logic [31:0]   WriteData,
+    output logic         MemEn,
+    output logic         WriteEn,
+    output logic [3:0]   WriteByteEn // byte write strobes (1-hot per byte)
 
-        output  logic           MemEn,
-        output  logic           WriteEn,
-        output  logic [3:0]     WriteByteEn  // strobes, 1 hot stating weather a byte should be written on a store
-    );
+    // // Privileged/CSR outputs
+    // output logic [31:0]  csr_rdata
+);
 
-    logic [31:0] IEUAdrE,PCPlus4;
-    logic PCSrc;
-    logic Load;
-    logic [7:0] HpmSignal;
+// ----------------------------------
+// Internal signals
+// ----------------------------------
+logic [31:0] IEUAdrE;
+logic [31:0] PCPlus4;
+logic        PCSrc;
+logic [7:0]  HpmSignal;
+logic [31:0] CSRReadData;
+logic        StallF;
+logic [11:0] csr_addrM;
 
-    logic [31:0] CSRReadData;
+// IFU: Instruction fetch unit
+ifu ifu(
+    .clk(clk),
+    .reset(reset),
+    .PCSrc(PCSrc),
+    .StallF(StallF),
+    .IEUAdr(IEUAdrE),
+    .PC(PC),
+    .PCPlus4(PCPlus4)
+);
 
-    logic StallF;
+// IEU: Integer execution unit (ALU, pipeline, memory signals)
+ieu ieu(
+    .clk(clk),
+    .reset(reset),
+    .Instr(Instr),
+    .PC(PC),
+    .StallF(StallF),
+    .PCPlus4(PCPlus4),
+    .PCSrc(PCSrc),
+    .WriteByteEn(WriteByteEn),
+    .IEUAdrE(IEUAdrE),
+    .IEUAdrM(IEUAdr),
+    .WriteData(WriteData),
+    .ReadData(ReadData),
+    .CSRReadData(CSRReadData),
+    .MemEn(MemEn),
+    .HpmSignal(HpmSignal),
+    .csr_addrM(csr_addrM)
+);
 
-    logic [11:0] csr_addrM;
+// Privileged CSR interface
+privileged prv(
+    .clk(clk),
+    .reset(reset),
+    .csr_addr(csr_addrM),
+    .HpmSignal(HpmSignal),
+    .csr_rdata(CSRReadData)
+);
 
-    ifu ifu(.clk, .reset, .PCSrc, .StallF, .IEUAdr(IEUAdrE), .PC, .PCPlus4);
-    ieu ieu(.clk, .reset, .Instr, .PC, .StallF, .PCPlus4, .PCSrc, .WriteByteEn,
-            .IEUAdrE(IEUAdrE), .IEUAdrM(IEUAdr), .WriteData, .ReadData, .CSRReadData, .MemEn, .HpmSignal, .csr_addrM
-        );
-
-    privileged prv(.clk, .reset, .csr_addr(csr_addrM), .HpmSignal, .csr_rdata(CSRReadData));
-
-
-    assign WriteEn = |WriteByteEn;
+// Write enable is asserted if any byte lane is enabled
+assign WriteEn = |WriteByteEn;
 
 endmodule

@@ -1,6 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020
+// regfile.sv
+// RISC-V pipelined processor
+// sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module regfile(
         input   logic           clk,

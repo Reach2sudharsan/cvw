@@ -1,80 +1,76 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020
+// alu.sv
+// RISC-V pipelined processor
+// sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module alu(
-        input   logic [31:0]    SrcA, SrcB,
-        input   logic [1:0]     ALUControl,
-        input   logic [2:0]     Funct3,
-        input   logic [6:0]     Op,
-        input   logic           Funct7b0, // NEW INPUT ADDED
-        input   logic           Funct7b5, // NEW INPUT ADDED
-        input   logic           IsJalr,
-        output  logic [31:0]    ALUResult, IEUAdr
-    );
+    input  logic [31:0]  SrcA,
+    input  logic [31:0]  SrcB,
+    input  logic [1:0]   ALUControl,
+    input  logic [2:0]   Funct3,
+    input  logic         Funct7b5,
+    input  logic         IsJalr,
+    output logic [31:0]  ALUResult,
+    output logic [31:0]  IEUAdr
+);
 
-    logic [32:0] SumExt;
-    logic [31:0] CondInvb, Sum, SLT, SLTU;
-    logic ALUOp, Sub, Overflow, Neg, LT;
-    logic [2:0] ALUFunct;
-    logic [63:0] mul_tmp, mulhu_tmp;
-    logic signed [63:0] mulhsu_tmp;
+// ----------------------------------
+// Internal signals
+// ----------------------------------
+logic [32:0] SumExt;
+logic [31:0] CondInvb, Sum, SLT, SLTU;
+logic ALUOp, Sub, Overflow, Neg, LT;
+logic [2:0] ALUFunct;
 
+// ALUControl fields: {Sub, ALUOp}
+assign {Sub, ALUOp} = ALUControl;
 
-    assign {Sub, ALUOp} = ALUControl;
+// ----------------------------------
+// Add/subtract and address generation
+// ----------------------------------
+assign CondInvb = Sub ? ~SrcB : SrcB;
+assign Sum = SrcA + CondInvb + {{31{1'b0}}, Sub};
 
-    // Add or subtract
-    assign CondInvb = Sub ? ~SrcB : SrcB;
-    assign Sum = SrcA + CondInvb + {{(31){1'b0}}, Sub};
+// JALR target must be aligned to 2 bytes by clearing bit 0
+assign IEUAdr = IsJalr ? (Sum & ~32'd1) : Sum;
 
-    // need to take into account jalr, which must use mask of ~1 to align address
+// ----------------------------------
+// Set Less Than logic
+// ----------------------------------
+// signed less-than: result of Sub operation from ALU plus overflow handling
+assign Overflow = (SrcA[31] ^ SrcB[31]) & (SrcA[31] ^ Sum[31]);
+assign Neg = Sum[31];
+assign LT = Neg ^ Overflow;
+assign SLT = {31'b0, LT};
 
-    // Send this out to IFU and LSU, for optimizing instrs with PC+imm
-    assign IEUAdr = IsJalr ? (Sum&~1) : Sum;
+// unsigned less-than
+assign SumExt = {1'b0, SrcA} + {1'b0, ~SrcB} + 1'b1;
+assign SLTU = {31'b0, ~SumExt[32]};
 
-    // Set less than based on subtraction result
-    assign Overflow = (SrcA[31] ^ SrcB[31]) & (SrcA[31] ^ Sum[31]);
-    assign Neg = Sum[31];
-    assign LT = Neg ^ Overflow;
-    assign SLT = {31'b0, LT};
+// Function selection for ALU operations (force add path when ALUOp=0)
+assign ALUFunct = Funct3 & {3{ALUOp}};
 
-    // Set less than unsigned
-    assign SumExt = {1'b0, SrcA} + {1'b0, ~SrcB} + 1'b1;
-    assign SLTU = {31'b0, ~SumExt[32]};
+// ----------------------------------
+// ALU operation multiplexer
+// ----------------------------------
+always_comb begin
+    case (ALUFunct)
+        3'b000: ALUResult = Sum;            // add/sub
+        3'b010: ALUResult = SLT;            // slt
+        3'b011: ALUResult = SLTU;           // sltu
+        3'b110: ALUResult = SrcA | SrcB;    // or
+        3'b100: ALUResult = SrcA ^ SrcB;    // xor
+        3'b111: ALUResult = SrcA & SrcB;    // and
+        3'b001: ALUResult = SrcA << SrcB[4:0]; // sll
 
+        3'b101: begin
+            if (!Funct7b5)
+                ALUResult = SrcA >> SrcB[4:0];        // srl
+            else
+                ALUResult = $signed(SrcA) >>> SrcB[4:0]; // sra
+        end
 
-    assign ALUFunct = Funct3 & {3{ALUOp}}; // Force ALUFunct to 0 to Add when ALUOp = 0
+        default: ALUResult = 'x;
+    endcase
+end
 
-
-    always_comb begin
-        mul_tmp = 64'b0;//$signed({{32{SrcA[31]}}, SrcA}) * $signed({{32{SrcB[31]}}, SrcB}); // 64-bit product
-        mulhsu_tmp = 64'b0;//$signed({{32{SrcA[31]}}, SrcA}) * $unsigned({32'b0, SrcB});   // signed × unsigned
-        mulhu_tmp = 64'b0;//{32'b0, SrcA} * {32'b0, SrcB};;             // unsigned × unsigned
-
-        case (ALUFunct)
-            3'b000: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mul_tmp[31:0] : Sum; // add or sub OR mul
-            3'b010: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mulhsu_tmp[63:32] : SLT; // slt OR mulhsu
-            3'b011: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mulhu_tmp[63:32] : SLTU; // sltu OR mulhu
-            3'b110: ALUResult = SrcA | SrcB; // or
-            3'b100: ALUResult = SrcA ^ SrcB; // xori
-            3'b111: ALUResult = SrcA & SrcB; // and
-            3'b001: ALUResult = Funct7b0 && (Op == 7'b0110011) ? mul_tmp[63:32] : SrcA << SrcB[4:0]; // sll OR mulh
-
-
-            3'b101:
-                    case(Funct7b5)
-                        0: ALUResult = SrcA >> SrcB[4:0]; // srl
-                        1: ALUResult = $signed(SrcA) >>> SrcB[4:0]; // sra
-                        default: ALUResult = 'x;
-                    endcase
-            default: ALUResult = 'x;
-        endcase
-    end
-
-    // always_comb begin
-        // if (IsJalr) begin
-            // $display("ALU JALR: SrcA=%h SrcB=%h Sum=%h IEUAdr=%h",
-                    // SrcA, SrcB, Sum, IEUAdr);
-        // end
-    // end
 endmodule

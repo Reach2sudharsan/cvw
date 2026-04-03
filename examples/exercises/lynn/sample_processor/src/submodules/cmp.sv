@@ -1,6 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020
+// cmp.sv
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module cmp(
         input   logic [31:0]    R1, R2,

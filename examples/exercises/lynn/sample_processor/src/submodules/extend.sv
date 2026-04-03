@@ -1,6 +1,6 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// David_Harris@hmc.edu 2020
+// extend.sv
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module extend(
         input   logic [31:7]    Instr,

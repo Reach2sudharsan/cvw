@@ -1,16 +1,22 @@
-// riscvsingle.sv
-// RISC-V single-cycle processor
-// sgopalakrishnan@g.hmc.edu
+// privileged.sv
+// RISC-V pipelined processor
+// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 module privileged(
-    input logic clk, reset,
+    input logic        clk,
+    input logic        reset,
     input logic [11:0] csr_addr,
-    input logic [7:0] HpmSignal,
-    // input logic        csr_we,
-    // input logic [31:0] csr_wdata,
+    input logic [7:0]  HpmSignal,
     output logic [31:0] csr_rdata
 );
 
-    csrfile csrf(.clk, .reset, .csr_addr(csr_addr), .HpmSignal, .csr_rdata(csr_rdata));
+    // CSR file instantiation
+    csrfile csrf(
+        .clk(clk),
+        .reset(reset),
+        .csr_addr(csr_addr),
+        .HpmSignal(HpmSignal),
+        .csr_rdata(csr_rdata)
+    );
 
 endmodule
