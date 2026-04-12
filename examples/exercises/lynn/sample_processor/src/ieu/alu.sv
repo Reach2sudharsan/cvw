@@ -94,8 +94,8 @@ module alu(
     logic [31:0] CondInvb, Sum, SLT, SLTU;
     logic ALUOp, Sub, Overflow, Neg, LT;
     logic [2:0] ALUFunct;
-    logic [63:0] mul_tmp, mulhu_tmp;
-    logic signed [63:0] mulhsu_tmp;
+    // logic [63:0] mul_tmp, mulhu_tmp;
+    // logic signed [63:0] mulhsu_tmp;
 
 
     assign {Sub, ALUOp} = ALUControl;
@@ -124,38 +124,38 @@ module alu(
 
 
     ////////////////////// MULTIPLY //////////////////////
-    logic signed [32:0] SrcA_ext, SrcB_ext;
-    logic signed [65:0] product;
-    logic        isMul;
+    // logic signed [32:0] SrcA_ext, SrcB_ext;
+    // logic signed [65:0] product;
+    // logic        isMul;
 
-    assign isMul = Funct7b0 & (Op == 7'b0110011);
+    // assign isMul = Funct7b0 & (Op == 7'b0110011);
 
     // Sign-extend or zero-extend based on operation
     // ALUFunct = Funct3 when ALUOp=1
     // 3'b010 = MULHSU: SrcA signed, SrcB unsigned
     // 3'b011 = MULHU:  both unsigned
     // all others (000, 001): both signed
-    always_comb begin
-        case (ALUFunct)
-            3'b011: begin  // MULHU: unsigned × unsigned
-                SrcA_ext = {1'b0, SrcA};
-                SrcB_ext = {1'b0, SrcB};
-            end
-            3'b010: begin  // MULHSU: signed × unsigned
-                SrcA_ext = {SrcA[31], SrcA};
-                SrcB_ext = {1'b0,     SrcB};
-            end
-            default: begin // MUL, MULH: signed × signed
-                SrcA_ext = {SrcA[31], SrcA};
-                SrcB_ext = {SrcB[31], SrcB};
-            end
-        endcase
-    end
+    // always_comb begin
+    //     case (ALUFunct)
+    //         3'b011: begin  // MULHU: unsigned × unsigned
+    //             SrcA_ext = {1'b0, SrcA};
+    //             SrcB_ext = {1'b0, SrcB};
+    //         end
+    //         3'b010: begin  // MULHSU: signed × unsigned
+    //             SrcA_ext = {SrcA[31], SrcA};
+    //             SrcB_ext = {1'b0,     SrcB};
+    //         end
+    //         default: begin // MUL, MULH: signed × signed
+    //             SrcA_ext = {SrcA[31], SrcA};
+    //             SrcB_ext = {SrcB[31], SrcB};
+    //         end
+    //     endcase
+    // end
 
     ////////////////////////////////////////////
 
     // ONE multiplier — synthesis will share this across MUL/MULH/MULHSU/MULHU
-    assign product = SrcA_ext * SrcB_ext;
+    // assign product = SrcA_ext * SrcB_ext;
 
 
     always_comb begin
@@ -164,10 +164,10 @@ module alu(
         // mulhu_tmp = {32'b0, SrcA} * {32'b0, SrcB};;             // unsigned × unsigned
 
         case (ALUFunct)
-            3'b000: ALUResult = isMul ? product[31:0]  : Sum;          // MUL or ADD/SUB
-            3'b001: ALUResult = isMul ? product[63:32] : SrcA << SrcB[4:0]; // MULH or SLL
-            3'b010: ALUResult = isMul ? product[63:32] : SLT;          // MULHSU or SLT
-            3'b011: ALUResult = isMul ? product[63:32] : SLTU;         // MULHU or SLTU
+            3'b000: ALUResult = Sum;          // MUL or ADD/SUB
+            3'b001: ALUResult = SrcA << SrcB[4:0]; // MULH or SLL
+            3'b010: ALUResult =  SLT;          // MULHSU or SLT
+            3'b011: ALUResult = SLTU;         // MULHU or SLTU
 
             3'b110: ALUResult = SrcA | SrcB; // or
             3'b100: ALUResult = SrcA ^ SrcB; // xori

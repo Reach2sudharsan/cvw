@@ -49,7 +49,7 @@ module datapath(
     // Pipeline registers and data
     logic [31:0] ImmExtD, ImmExtE;
     logic [31:0] R1, R2, SrcAE, SrcBE;
-    logic [31:0] ALUResultE, ALUResultM, ALUResultW, IEUResultE, IEUResultM, IEUResultW, JumpMuxResultE;
+    logic [31:0] ALUResultE, ALUResultM, ALUResultW, IEUResultE, IEUResultM, IEUResultTempM, IEUResultW, JumpMuxResultE;
     logic [31:0] ResultW, SizedResultW;
     logic [15:0] HalfResultW;
     logic [7:0] ByteResultW;
@@ -79,11 +79,14 @@ module datapath(
     logic [31:0] Aout, Bout;
     logic MemEnE;
     logic ALUResultSrcE;
-    logic IsMulD, IsMulE;
-    logic [2:0] ALUFunctD, ALUFunctE;
+    logic IsMulD, IsMulE, IsMulM;
+    logic [2:0] ALUFunctD, ALUFunctE, ALUFunctM;
 
     logic AmsbE, BmsbE;
     logic [31:0] productE;
+    logic signed [33:0] P0E, P1E, P2E, P3E;
+    logic signed [33:0] P0M, P1M, P2M, P3M;
+
 
     // ============================================================================
     // Hazard Detection Unit
@@ -239,15 +242,16 @@ module datapath(
         SrcAE, SrcBE,
         AmsbE, BmsbE,
         ALUFunctE[1:0],
-       productE
+    //    productE
+        P0E, P1E, P2E, P3E
     );
 
-    logic [31:0] ComputedResultE;
-    mux2 #(32) selectresult(ALUResultE, productE, IsMulE, ComputedResultE);
+    // logic [31:0] ComputedResultE;
+    // mux2 #(32) selectresult(ALUResultE, productE, IsMulE, ComputedResultE);
 
     // Result selection for lui, jalr, and ALU operations
     mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE);
-    mux2 #(32) ieuresultmux(ComputedResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE);
+    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE);
 
     // Performance monitoring signals
     assign SubE = ALUControlE[1];
@@ -304,10 +308,24 @@ module datapath(
     flopenr #(32) E2M_IEUAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUAdrE), .Q(IEUAdrM));
     flopenr #(7) E2M_Op(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(OpE), .Q(OpM));
     flopenr #(1) E2M_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemWriteE), .Q(MemWriteM));
-    flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultM));
+    flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultTempM));
     flopenr #(1) E2M_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemEnE), .Q(MemEnM));
     flopenr #(12) E2M_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(csr_addrE), .Q(csr_addrM));
     flopenr #(3) E2M_Funct3(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(Funct3E), .Q(Funct3M));
+
+
+    // flopenr #(32) E2M_P0(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(P0E), .Q(P0M));
+    // flopenr #(32) E2M_PCPlus4(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(PCPlus4E), .Q(PCPlus4M));
+    // flopenr #(32) E2M_PCPlus4(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(PCPlus4E), .Q(PCPlus4M));
+    // flopenr #(32) E2M_PCPlus4(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(PCPlus4E), .Q(PCPlus4M));
+    flopenr #(34) E2M_P0(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(P0E), .Q(P0M));
+    flopenr #(34) E2M_P1(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(P1E), .Q(P1M));
+    flopenr #(34) E2M_P2(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(P2E), .Q(P2M));
+    flopenr #(34) E2M_P3(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(P3E), .Q(P3M));
+
+    flopenr #(1) E2M_IsMul(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IsMulE), .Q(IsMulM));
+    flopenr #(3) E2M_ALUFunct(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(ALUFunctE), .Q(ALUFunctM));
+
 
 
     // Pipeline registers: Execute to Memory (Controller)
@@ -341,6 +359,31 @@ module datapath(
             default: WriteByteEnM = {(4){MemWriteM}};
         endcase
     end
+
+
+    logic [63:0] origProductM;
+    logic [31:0] productM;
+
+
+     // assign origProduct = (P0 << 32) + (P1 << 16) + (P2 << 16) + P3;
+    assign origProductM = ({{32{P0M[33]}}, P0M} << 32) +
+                        ({{32{P1M[33]}}, P1M} << 16) +
+                        ({{32{P2M[33]}}, P2M} << 16) +
+                        {{32{P3M[33]}}, P3M};
+
+    always_comb begin
+        case (ALUFunctM[1:0])
+            2'b00: productM = origProductM[31:0]; // MUL {$signed(SrcAE) * $signed(SrcBE)}[31:0];
+            default:  // MULH, MULHU, MULHSU
+                begin
+                    productM = origProductM[63:32]; // productE = ($signed(SrcAE) * $signed(SrcBE)) >>> 32; // origProduct[63:32];
+                end
+        endcase
+    end
+
+
+    // logic [31:0] ComputedResultE;
+    mux2 #(32) selectresult(IEUResultTempM, productM, IsMulM, IEUResultM);
 
     // Pipeline registers: Memory to Writeback
     flopenr #(5) M2W_Rd(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(RdM), .Q(RdW));
