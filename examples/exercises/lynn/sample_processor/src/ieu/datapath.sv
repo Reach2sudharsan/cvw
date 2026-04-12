@@ -79,6 +79,11 @@ module datapath(
     logic [31:0] Aout, Bout;
     logic MemEnE;
     logic ALUResultSrcE;
+    logic IsMulD, IsMulE;
+    logic [2:0] ALUFunctD, ALUFunctE;
+
+    logic AmsbE, BmsbE;
+    logic [31:0] productE;
 
     // ============================================================================
     // Hazard Detection Unit
@@ -132,6 +137,11 @@ module datapath(
     assign Funct7b5D = InstrD[30];
     assign OpD = InstrD[6:0];
 
+    // multiply signals
+    assign IsMulD = Funct7b0D & (OpD == 7'b0110011);
+    assign ALUFunctD =  Funct3D & {3{ALUOpD}};
+
+
     // Register file
     regfile rf(.clk, .WE3(RegWriteW), .A1(Rs1D), .A2(Rs2D),
         .A3(RdW), .WD3(SizedResultW), .RD1(RD1D), .RD2(RD2D));
@@ -158,6 +168,9 @@ module datapath(
 
     logic [11:0] csr_addrE;
     flopenr #(12) D2E_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(InstrD[31:20]), .Q(csr_addrE));
+
+    flopenr #(1) D2E_IsMul(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(IsMulD), .Q(IsMulE));
+    flopenr #(3) D2E_ALUFunct(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(ALUFunctD), .Q(ALUFunctE));
 
     // Pipeline registers: Decode to Execute (Controller)
     flopenr #(1) D2E_RegWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(RegWriteD), .Q(RegWriteE));
@@ -188,6 +201,25 @@ module datapath(
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
 
+
+     always_comb begin
+        case (ALUFunctE)
+            3'b011: begin  // MULHU: unsigned × unsigned
+                AmsbE = 1'b0;
+                BmsbE = 1'b0;
+
+            end
+            3'b010: begin  // MULHSU: signed × unsigned
+                AmsbE = SrcAE[31];
+                BmsbE = 1'b0;
+            end
+            default: begin // MUL, MULH: signed × signed
+                AmsbE = SrcAE[31];
+                BmsbE = SrcBE[31];
+            end
+        endcase
+    end
+
     // ALU
     alu alu(
         .SrcA(SrcAE),
@@ -202,9 +234,20 @@ module datapath(
         .IEUAdr(IEUAdrE)
     );
 
+    // Multiply
+    multiply multiply(
+        SrcAE, SrcBE,
+        AmsbE, BmsbE,
+        ALUFunctE[1:0],
+       productE
+    );
+
+    logic [31:0] ComputedResultE;
+    mux2 #(32) selectresult(ALUResultE, productE, IsMulE, ComputedResultE);
+
     // Result selection for lui, jalr, and ALU operations
     mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE);
-    mux2 #(32) ieuresultmux(ALUResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE);
+    mux2 #(32) ieuresultmux(ComputedResultE, JumpMuxResultE, ALUResultSrcE, IEUResultE);
 
     // Performance monitoring signals
     assign SubE = ALUControlE[1];

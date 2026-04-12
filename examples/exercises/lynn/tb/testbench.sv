@@ -59,6 +59,44 @@ module testbench;
 
     if (~reset) begin
 
+      // $display("\nPCF: %h \t PCD: %h \t PCE: %h",
+      //           dut.ieu.dp.PCF,
+      //            dut.ieu.dp.PCD,
+      //            dut.ieu.dp.PCE
+
+      //     );
+
+
+      // $display("ALmsb: %h \t AHmsb: %h \t BLmsb: %h \t BHmsb: %h          P0: %h \t P1: %h \t P2: %h \t P3: %h \t origProduct: %h \t productE: %h",
+      //           dut.ieu.dp.multiply.ALmsb,
+      //           dut.ieu.dp.multiply.AHmsb,
+      //           dut.ieu.dp.multiply.BLmsb,
+      //           dut.ieu.dp.multiply.BHmsb,
+      //           dut.ieu.dp.multiply.P0,
+      //           dut.ieu.dp.multiply.P1,
+      //           dut.ieu.dp.multiply.P2,
+      //           dut.ieu.dp.multiply.P3,
+      //           dut.ieu.dp.multiply.origProduct,
+      //           dut.ieu.dp.multiply.productE
+
+      //            );
+
+      // $display("ALUFunctb01E: %h \t ALUFunctE: %h \t SrcAE: %h \t SrcBE: %h \t IsMulE: %h",
+      //           dut.ieu.dp.multiply.ALUFunctb01E,
+      //            dut.ieu.dp.ALUFunctE,
+      //            dut.ieu.dp.SrcAE,
+      //           dut.ieu.dp.SrcBE,
+      //           dut.ieu.dp.IsMulE
+
+      //     );
+
+    //  $display("Aout: %h \t Bout: %h",
+    //             dut.ieu.dp.Aout,
+    //              dut.ieu.dp.Bout,
+
+    //       );
+
+
       // $display("\n PCF: %h \t PCD: %h \t PCE: %h \t Instr: %h \t IEUAdrE: %h \t PCPlus4E: %h \t PCSrE: %h \t JumpE: %h \t HpmBrachTakenE: %h \t StallF: %h  \t FlushE: %h",
       //           dut.ieu.dp.PCF,
       //            dut.ieu.dp.PCD,
