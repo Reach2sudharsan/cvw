@@ -7,7 +7,8 @@ module hazard_unit(
     input logic [4:0] RdE, RdM, RdW,
     input logic       RegWriteM, RegWriteW,
     input logic       ResultSrcEb0, // 1 if load instruction in execute stage
-    input logic       PCSrcE,
+    input logic     PCSrcE,
+    input logic JumpPredict,
 
     output logic [1:0] ForwardAE, ForwardBE,
     output logic       lwStall, StallF, StallD, FlushD, FlushE
@@ -47,7 +48,7 @@ module hazard_unit(
 
     // Flush logic
     // Flush decode on branch taken
-    assign FlushD = PCSrcE;
+    assign FlushD = PCSrcE | (JumpPredict & ~StallD);
     // Flush execute on load-word stall or branch taken
     assign FlushE = lwStall || PCSrcE;
 

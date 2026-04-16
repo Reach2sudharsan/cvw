@@ -4,7 +4,9 @@
 
 module ifu(
         input   logic           clk, reset,
-        input   logic           PCSrc,
+        input   logic     PCSrc,
+        input   logic  [31:0]   JumpTarget,
+        input   logic           JumpPredict,
         input   logic           StallF,
         input   logic [31:0]    IEUAdr,
         output  logic [31:0]    PC, PCPlus4
@@ -30,5 +32,5 @@ module ifu(
     end
 
     adder pcadd4(PC, 32'd4, PCPlus4);
-    mux2 #(32) pcmux(PCPlus4, IEUAdr, PCSrc, PCNext);
+    mux3 #(32) pcmux(PCPlus4, IEUAdr, JumpTarget, {JumpPredict, PCSrc}, PCNext);
 endmodule

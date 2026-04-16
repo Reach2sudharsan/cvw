@@ -59,10 +59,13 @@ module testbench;
 
     if (~reset) begin
 
-      // $display("\nPCF: %h \t PCD: %h \t PCE: %h",
+      // $display("\nPCF: %h \t PCD: %h \t PCE: %h \t JumpPredictE: %h \t PCSrcE: %h \t PCNext: %h",
       //           dut.ieu.dp.PCF,
       //            dut.ieu.dp.PCD,
-      //            dut.ieu.dp.PCE
+      //            dut.ieu.dp.PCE,
+      //             dut.ieu.dp.JumpPredictE,
+      //              dut.ieu.dp.PCSrcE,
+      //              dut.ifu.PCNext
 
       //     );
 
@@ -166,10 +169,14 @@ module testbench;
       //     DataMemory.En
       // );
 
-      // $display("\n PCF: %h \t PCD: %h \t PCE: %h",
-      //           dut.ieu.dp.PCF,
-      //            dut.ieu.dp.PCD,
-      //            dut.ieu.dp.PCE);
+      // $display("SrcAE: %h \t SrcBE: %h \t Aout: %h \t Bout: %h \t JumpPredict: %h \t PCSrc: %h",
+      //           dut.ieu.dp.SrcAE,
+      //            dut.ieu.dp.SrcBE,
+      //             dut.ieu.dp.Aout,
+      //            dut.ieu.dp.Bout,
+      //             dut.ifu.JumpPredict,
+      //              dut.ifu.PCSrc
+      //     );
 
 
 

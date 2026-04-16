@@ -27,6 +27,9 @@ module datapath(
     output  logic [1:0]     IEUAdrb10M,
     // Branch/jump control
     output  logic           PCSrcE,
+    output  logic [31:0]    JumpTargetD,
+    output logic            JumpPredictD,
+
     // Instruction in decode stage
     output  logic [31:0]    InstrD,
     // Performance monitoring
@@ -110,7 +113,8 @@ module datapath(
         .StallF(StallF),
         .StallD(StallD),
         .FlushD(FlushD),
-        .FlushE(FlushE)
+        .FlushE(FlushE),
+        .JumpPredict(JumpPredictD)
     );
 
     // ============================================================================
@@ -144,6 +148,10 @@ module datapath(
     assign IsMulD = Funct7b0D & (OpD == 7'b0110011);
     assign ALUFunctD =  Funct3D & {3{ALUOpD}};
 
+    logic JumpPredictE;
+    assign JumpPredictD = (JumpD & ~PCSrcE & OpD[3]);
+    assign JumpTargetD = ImmExtD + PCD;
+
 
     // Register file
     regfile rf(.clk, .WE3(RegWriteW), .A1(Rs1D), .A2(Rs2D),
@@ -174,6 +182,9 @@ module datapath(
 
     flopenr #(1) D2E_IsMul(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(IsMulD), .Q(IsMulE));
     flopenr #(3) D2E_ALUFunct(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(ALUFunctD), .Q(ALUFunctE));
+
+    flopenr #(1) D2E_JumpPredict(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(JumpPredictD), .Q(JumpPredictE));
+
 
     // Pipeline registers: Decode to Execute (Controller)
     flopenr #(1) D2E_RegWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(RegWriteD), .Q(RegWriteE));
@@ -271,7 +282,7 @@ module datapath(
         );
 
     // PC source control (jump or taken branch)
-    assign PCSrcE = JumpE | HpmBranchTakenE;
+    assign PCSrcE =  (JumpE&(~JumpPredictE)) | HpmBranchTakenE;
 
     // Performance monitoring signal assembly
     assign HpmSignalE = {
@@ -365,11 +376,32 @@ module datapath(
     logic [31:0] productM;
 
 
-     // assign origProduct = (P0 << 32) + (P1 << 16) + (P2 << 16) + P3;
-    assign origProductM = ({{32{P0M[33]}}, P0M} << 32) +
-                        ({{32{P1M[33]}}, P1M} << 16) +
-                        ({{32{P2M[33]}}, P2M} << 16) +
-                        {{32{P3M[33]}}, P3M};
+    //  // assign origProduct = (P0 << 32) + (P1 << 16) + (P2 << 16) + P3;
+    // assign origProductM = ({{32{P0M[33]}}, P0M} << 32) +
+    //                     ({{32{P1M[33]}}, P1M} << 16) +
+    //                     ({{32{P2M[33]}}, P2M} << 16) +
+    //                     {{32{P3M[33]}}, P3M};
+    // Step 1: Pre-add P1M + P2M (same shift amount) → 35 bits, no wide signals
+
+    /////////
+    logic signed [34:0] P12M;
+
+    assign P12M = {P1M[33], P1M} + {P2M[33], P2M};  // 34-bit sign-ext to 35-bit add
+
+    // Step 2: Build two ≤64-bit operands
+    // op_hi = P0M << 32  → upper half contribution
+    // op_lo = (P12M << 16) + P3M → lower half contribution
+
+    logic signed [63:0] op_hi, op_lo;
+
+    assign op_hi = {{30{P0M[33]}}, P0M};          // sign-ext P0M to 64b (shift handled by split)
+
+    assign op_lo = ({{13{P12M[34]}}, P12M} << 16) // sign-ext P12M to 64b, shift 16
+                + {{30{P3M[33]}},  P3M};          // sign-ext P3M  to 64b
+
+    // Step 3: Final combine — one adder, split across 64-bit boundary
+    assign origProductM = (op_hi << 32) + op_lo;
+    //////////
 
     always_comb begin
         case (ALUFunctM[1:0])

@@ -205,8 +205,8 @@ main:
     #     j pass
 
 # # B-type
-    # return_beq_test:
-    #     j bne_test
+    return_beq_test:
+        j pass
 
     # return_bne_test:
     #     j blt_test
