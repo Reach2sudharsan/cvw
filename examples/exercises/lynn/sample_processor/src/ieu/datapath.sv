@@ -85,7 +85,7 @@ module datapath(
     logic IsMulD, IsMulE, IsMulM;
     logic [2:0] ALUFunctD, ALUFunctE, ALUFunctM;
 
-    logic AmsbE, BmsbE;
+    // logic AmsbE, BmsbE;
     logic [31:0] productE;
     logic signed [33:0] P0E, P1E, P2E, P3E;
     logic signed [33:0] P0M, P1M, P2M, P3M;
@@ -114,7 +114,8 @@ module datapath(
         .StallD(StallD),
         .FlushD(FlushD),
         .FlushE(FlushE),
-        .JumpPredict(JumpPredictD)
+        .JumpPredict(JumpPredictD),
+        .IsMulE(IsMulE)
     );
 
     // ============================================================================
@@ -215,25 +216,6 @@ module datapath(
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
 
-
-     always_comb begin
-        case (ALUFunctE)
-            3'b011: begin  // MULHU: unsigned × unsigned
-                AmsbE = 1'b0;
-                BmsbE = 1'b0;
-
-            end
-            3'b010: begin  // MULHSU: signed × unsigned
-                AmsbE = SrcAE[31];
-                BmsbE = 1'b0;
-            end
-            default: begin // MUL, MULH: signed × signed
-                AmsbE = SrcAE[31];
-                BmsbE = SrcBE[31];
-            end
-        endcase
-    end
-
     // ALU
     alu alu(
         .SrcA(SrcAE),
@@ -250,15 +232,10 @@ module datapath(
 
     // Multiply
     multiply multiply(
-        SrcAE, SrcBE,
-        AmsbE, BmsbE,
-        ALUFunctE[1:0],
-    //    productE
-        P0E, P1E, P2E, P3E
+        .SrcAE(SrcAE), .SrcBE(SrcBE),
+        .ALUFunctb01E(ALUFunctE[1:0]),
+        .P0(P0E), .P1(P1E), .P2(P2E), .P3(P3E)
     );
-
-    // logic [31:0] ComputedResultE;
-    // mux2 #(32) selectresult(ALUResultE, productE, IsMulE, ComputedResultE);
 
     // Result selection for lui, jalr, and ALU operations
     mux2 #(32) luijalrmux(ImmExtE, PCPlus4E, JumpE, JumpMuxResultE);
@@ -319,7 +296,7 @@ module datapath(
     flopenr #(32) E2M_IEUAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUAdrE), .Q(IEUAdrM));
     flopenr #(7) E2M_Op(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(OpE), .Q(OpM));
     flopenr #(1) E2M_MemWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemWriteE), .Q(MemWriteM));
-    flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultTempM));
+    flopenr #(32) E2M_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultE), .Q(IEUResultM));
     flopenr #(1) E2M_MemEn(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(MemEnE), .Q(MemEnM));
     flopenr #(12) E2M_CsrAdr(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(csr_addrE), .Q(csr_addrM));
     flopenr #(3) E2M_Funct3(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(Funct3E), .Q(Funct3M));
@@ -415,29 +392,35 @@ module datapath(
 
 
     // logic [31:0] ComputedResultE;
-    mux2 #(32) selectresult(IEUResultTempM, productM, IsMulM, IEUResultM);
+    logic [31:0] NewIEUResultM;
+    mux2 #(32) selectresult(IEUResultM, productM, IsMulM, NewIEUResultM);
 
     // Pipeline registers: Memory to Writeback
+    // logic [31:0] IEUResultTempW;
     flopenr #(5) M2W_Rd(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(RdM), .Q(RdW));
     flopenr #(32) M2W_PCPlus4(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(PCPlus4M), .Q(PCPlus4W));
     flopenr #(32) M2W_ReadData(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(ReadDataM), .Q(ReadDataW));
     flopenr #(32) M2W_ALUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(ALUResultM), .Q(ALUResultW));
     flopenr #(32) M2W_CSRReadData(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(CSRReadDataM), .Q(CSRReadDataW));
-    flopenr #(32) M2W_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(IEUResultM), .Q(IEUResultW));
+    flopenr #(32) M2W_IEUResult(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(NewIEUResultM), .Q(IEUResultW));
     flopenr #(2) M2W_ResultSrc(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(ResultSrcM), .Q(ResultSrcW));
     flopenr #(3) M2W_LoadType(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(LoadTypeM), .Q(LoadTypeW));
     flopenr #(1) M2W_RegWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(RegWriteM), .Q(RegWriteW));
+    // flopenr #(32) M2W_Product(.clk(clk), .reset(reset), .enable(1'b1), .flush(1'b0), .D(productM), .Q(productW));
+
 
     // ============================================================================
     // WRITEBACK STAGE
     // ============================================================================
 
     // Result multiplexer: select between ALU result, memory data, or CSR data
+    // mux2 #(32) selectresult(IEUResultW, productW, 1'b0, IEUResultM);
     mux3 #(32) resultmux(IEUResultW, ReadDataW, CSRReadDataW, ResultSrcW, ResultW);
 
     // Load data sizing and sign extension
     mux2 #(16) halfmux(ResultW[15:0], ResultW[31:16], IEUResultW[1], HalfResultW);
     mux2 #(8) bytemux(HalfResultW[7:0], HalfResultW[15:8], IEUResultW[0], ByteResultW);
+
 
     always_comb begin
         case (LoadTypeW)

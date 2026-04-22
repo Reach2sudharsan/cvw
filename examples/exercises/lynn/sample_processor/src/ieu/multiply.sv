@@ -1,11 +1,10 @@
 module multiply(
         input logic [31:0] SrcAE, SrcBE,
-        input logic AmsbE, BmsbE,
+        // input logic AmsbE, BmsbE,
         input logic [1:0] ALUFunctb01E,
         // output logic [31:0] productE
         output logic signed [33:0] P0, P1, P2, P3
 );
-
 
         // logic signed [33:0] P0, P1, P2, P3;
         logic signed [63:0] origProduct;
@@ -50,19 +49,4 @@ module multiply(
             endcase
         end
 
-        // // assign origProduct = (P0 << 32) + (P1 << 16) + (P2 << 16) + P3;
-        // assign origProduct = ({{32{P0[33]}}, P0} << 32) +
-        //                  ({{32{P1[33]}}, P1} << 16) +
-        //                  ({{32{P2[33]}}, P2} << 16) +
-        //                   {{32{P3[33]}}, P3};
-
-        // always_comb begin
-        //     case (ALUFunctb01E)
-        //         2'b00: productE = origProduct[31:0]; // MUL {$signed(SrcAE) * $signed(SrcBE)}[31:0];
-        //         default:  // MULH, MULHU, MULHSU
-        //             begin
-        //                 productE = origProduct[63:32]; // productE = ($signed(SrcAE) * $signed(SrcBE)) >>> 32; // origProduct[63:32];
-        //             end
-        //     endcase
-        // end
 endmodule
