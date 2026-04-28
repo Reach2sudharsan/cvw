@@ -62,7 +62,7 @@ module datapath #(
     // Pipeline registers and data
     logic [31:0] ImmExtD, ImmExtE;
     logic [31:0] R1, R2, SrcAE, SrcBE;
-    logic [31:0] ALUResultE, ALUResultM, ALUResultW, IEUResultE, IEUResultM, IEUResultTempM, IEUResultW, JumpMuxResultE;
+    logic [31:0] ALUResultE, ALUResultM, ALUResultW, IEUResultE, IEUResultM, IEUResultW, JumpMuxResultE;
     logic [31:0] ResultW, SizedResultW;
     logic [15:0] HalfResultW;
     logic [7:0] ByteResultW;
@@ -80,7 +80,7 @@ module datapath #(
     logic [1:0] ALUSrcE;
     logic IsJalrE;
     logic [1:0] ResultSrcE, ResultSrcM, ResultSrcW, ALUControlE;
-    logic [31:0] IEUAdrE, IEUAdrW;
+    logic [31:0] IEUAdrE;
     logic HpmAddE, HpmBranchTakenE, Eq, Lt, Ltu;
     logic SubE;
     logic [7:0] HpmSignalE;
@@ -283,12 +283,11 @@ module datapath #(
     cmp cmp(.R1(Aout), .R2(Bout), .Eq, .Lt, .Ltu);
 
     // Forwarding multiplexers for ALU operands
-    logic [31:0] ForwardMA;
-    logic [31:0] ForwardMB;
-    mux2 #(32) forwardMAmux(IEUResultM, CSRReadDataM, ResultSrcM[1], ForwardMA);
-    mux2 #(32) forwardMBmux(IEUResultM, CSRReadDataM, ResultSrcM[1], ForwardMB);
-    mux3 #(32) forwardAmux(RD1E, SizedResultW, ForwardMA, ForwardAE, Aout);
-    mux3 #(32) forwardBmux(RD2E, SizedResultW, ForwardMB, ForwardBE, Bout);
+    logic [31:0] ForwardM;
+    // logic [31:0] ForwardMB;
+    mux2 #(32) forwardMmux(IEUResultM, CSRReadDataM, ResultSrcM[1], ForwardM);
+    mux3 #(32) forwardAmux(RD1E, SizedResultW, ForwardM, ForwardAE, Aout);
+    mux3 #(32) forwardBmux(RD2E, SizedResultW, ForwardM, ForwardBE, Bout);
 
     // ALU source multiplexers
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
