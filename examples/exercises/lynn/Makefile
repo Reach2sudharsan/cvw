@@ -78,7 +78,7 @@ CC      := $(TOOLPREFIX)gcc
 OBJDUMP := $(TOOLPREFIX)objdump
 READELF := $(TOOLPREFIX)readelf
 SIZE    := $(TOOLPREFIX)size
-ELF2HEX := $(TOOLPREFIX)elf2hex
+ELF2HEX := elf2hex
 
 # ----    Coremark Parameters ---- #
 # (moved into coremark/Makefile)
@@ -129,7 +129,7 @@ build: $(WORK_DIR)/_info Makefile
 	$(SIZE) -A $< > $<.size
 	$(READELF) -S $< > $<.read
 	$(OBJDUMP) -D $< > $<.objdump
-	$(ELF2HEX) --bit-width 32 --input $< --output $@
+	$(ELF2HEX) $< $@
 	extractFunctionRadix.sh $<.objdump
 
 #   Use: make run ELFS="path/to/a.elf path/to/b.elf" [-j]
@@ -194,7 +194,7 @@ VSIM_PLUSARGS_BASE  ?= \
 
 
 .PHONY: synth
-synth:
+synth: lint
 	$(MAKE) -C $(SYNTH_DIR) \
 		SYNTH_TECH=$(SYNTH_TECH) PROCESSOR_DIR=$(PROCESSOR_DIR) INC_DIR=$(INC_DIR) \
 		PROCESSOR_TOP=$(PROCESSOR_TOP) XLEN=$(XLEN) SYNTH_TOP=$(SYNTH_TOP)
