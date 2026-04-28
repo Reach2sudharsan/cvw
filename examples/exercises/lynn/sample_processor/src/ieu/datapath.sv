@@ -101,9 +101,9 @@ module datapath #(
     logic signed [33:0] P0M, P1M, P2M, P3M;
 
 
-    // Branch Prediction
-    logic [32+TAG_SIZE:0] BTB [BUFFER_SIZE-1:0];
-    logic [$clog2(BUFFER_SIZE)-1:0] buffer_indexF, buffer_indexE;
+    // // Branch Prediction
+    // logic [32+TAG_SIZE:0] BTB [BUFFER_SIZE-1:0];
+    // logic [$clog2(BUFFER_SIZE)-1:0] buffer_indexF, buffer_indexE;
 
     // logic [31:0] branch_targetF;
 
@@ -185,12 +185,14 @@ module datapath #(
     assign PCPlus4F = PCPlus4;
 
     assign buffer_indexF = PCF[$clog2(BUFFER_SIZE)+1:2];
-    assign pht_indexF = {3'b0, GHRF[2:0]} ^ buffer_indexF;
-    assign branch_targetF = BTB[buffer_indexF][31:0];
-    assign branch_tagF = BTB[buffer_indexF][32+TAG_SIZE-1:32];
-    assign branch_validF = BTB[buffer_indexF][32+TAG_SIZE];
+    assign pht_indexF = {1'b0, GHRF[5:0]} ^ buffer_indexF;
+    assign branch_targetF = PCF + {{20{InstrF[31]}}, InstrF[7], InstrF[30:25], InstrF[11:8], 1'b0};
+    // assign branch_tagF = BTB[buffer_indexF][32+TAG_SIZE-1:32];
+    assign branch_validF =(InstrF[6:0] == 7'b1100011);
 
-     assign branch_predictedF = PHT[pht_indexF][1] && branch_validF && (branch_tagF == PCF[$clog2(BUFFER_SIZE)+TAG_SIZE:$clog2(BUFFER_SIZE)+2]) && ~reset;
+    //  assign branch_predictedF = PHT[pht_indexF][1] && branch_validF && (branch_tagF == PCF[$clog2(BUFFER_SIZE)+TAG_SIZE:$clog2(BUFFER_SIZE)+2]) && ~reset;
+    assign branch_predictedF = PHT[pht_indexF][1] && branch_validF && ~reset;
+
 
     // Pipeline registers: Fetch to Decode
     flopenr #(32) F2D_instr(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(InstrF), .Q(InstrD));
@@ -344,7 +346,7 @@ module datapath #(
 
 
     assign buffer_indexE = PCE[$clog2(BUFFER_SIZE)+1:2];
-    assign pht_indexE = {3'b0, GHRE[2:0]} ^ buffer_indexE;
+    assign pht_indexE = {1'b0, GHRE[5:0]} ^ buffer_indexE;
 
     logic branch_mispredicted;
     assign branch_mispredicted = HpmBranchTakenE != branch_predictedE;
@@ -368,18 +370,18 @@ module datapath #(
     mux2 #(32) branchpredictmux(PCPlus4E, IEUAdrE, (branch_mispredicted & BranchValidE) || (JumpE&(~JumpPredictE))  , NextAdrE);
 
 
-    // BTB
-    always_ff @(posedge clk) begin
-        if (reset) begin
-            for (int i = 0; i < BUFFER_SIZE; i++)
-                BTB[i] <= {(33+TAG_SIZE){1'b0}};
-        end else begin
-            if (BranchE) begin
-                // BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+1+TAG_SIZE-1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
-                BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+TAG_SIZE+1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
-            end
-        end
-    end
+    // // BTB
+    // always_ff @(posedge clk) begin
+    //     if (reset) begin
+    //         for (int i = 0; i < BUFFER_SIZE; i++)
+    //             BTB[i] <= {(33+TAG_SIZE){1'b0}};
+    //     end else begin
+    //         if (BranchE) begin
+    //             // BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+1+TAG_SIZE-1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
+    //             BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+TAG_SIZE+1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
+    //         end
+    //     end
+    // end
 
     // PHT (Pattern History Table) - 2-bit saturating counters
     // Prediction: PHT[index][1] = 1 predicts taken, 0 predicts not taken
