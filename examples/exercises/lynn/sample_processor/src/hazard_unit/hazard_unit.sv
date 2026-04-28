@@ -44,6 +44,7 @@ module hazard_unit(
     assign lwStall = ((Rs1D == RdE) || (Rs2D == RdE)) && ResultSrcEb0;
 
     // Stall fetch and decode stages on load-word hazard
+    logic MultStall;
     assign MultStall = ((Rs1D == RdE) || (Rs2D == RdE)) && IsMulE;
 
     assign StallF = lwStall || MultStall;

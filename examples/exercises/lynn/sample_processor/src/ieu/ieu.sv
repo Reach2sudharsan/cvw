@@ -66,7 +66,7 @@ controller c(
 // ----------------------------------
 // Datapath instantiation
 // ----------------------------------
-datapath #(64, 16) dp(
+datapath #(128, 16) dp(
     .clk(clk),
     .reset(reset),
     .ALUOpD(ALUOp),

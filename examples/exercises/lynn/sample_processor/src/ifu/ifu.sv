@@ -27,7 +27,7 @@ module ifu(
         $display("[TB] ENTRY_ADDR = 0x%h", entry_addr);
     end
 
-    always_ff @(posedge clk or posedge reset) begin
+    always_ff @(posedge clk, posedge reset) begin
     if (reset)  PC <= entry_addr;
     else if (!StallF)   PC <= PCNext;
     end

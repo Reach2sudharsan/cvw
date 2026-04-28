@@ -16,7 +16,7 @@ logic [31:0] rdtime = 32'd0;
 logic [31:0] rdinsret = 32'd0;
 
 // Hardware performance counters, using the CSR range [0xC03..0xC1F] + upper halves [0xC83..0xC9F]
-logic [31:0] hpmcounter [5:3];
+// logic [31:0] hpmcounter [5:3];
 
 integer i;
 
@@ -32,11 +32,11 @@ always_ff @(posedge clk or posedge reset) begin
     end else begin
         rdcycle  <= rdcycle + 1;
         rdtime   <= rdtime + 1;
-        rdinsret <= rdinsret + (HpmSignal[1] | HpmSignal[3] | HpmSignal[4] | HpmSignal[6]);
+        rdinsret <= rdinsret + {31'b0, (HpmSignal[1] || HpmSignal[3] || HpmSignal[4] || HpmSignal[6])};
 
         // if (HpmSignal[0]) hpmcounter[3]  <= hpmcounter[3]  + 1; // add/addi
         // if (HpmSignal[1]) hpmcounter[4]  <= hpmcounter[4]  + 1; // branch evaluated
-        if (HpmSignal[2]) hpmcounter[5]  <= hpmcounter[5]  + 1; // branch taken
+        // if (HpmSignal[2]) hpmcounter[5]  <= hpmcounter[5]  + 1; // branch taken
         // if (HpmSignal[3]) hpmcounter[6]  <= hpmcounter[6]  + 1; // register file write
         // if (HpmSignal[4]) hpmcounter[7]  <= hpmcounter[7]  + 1; // store instruction
         // if (HpmSignal[5]) hpmcounter[8]  <= hpmcounter[8]  + 1; // load instruction

@@ -76,7 +76,7 @@ module datapath #(
     logic [31:0] PCPlus4F, PCPlus4D, PCPlus4E, PCPlus4M, PCPlus4W;
     logic [4:0] Rs1D, Rs2D, RdD, Rs1E, Rs2E, RdE, RdM, RdW;
     logic [31:0] RD1D, RD2D, RD1E, RD2E, RD2M;
-    logic RegWriteE, RegWriteM, JumpE, BranchE, ALUOpE;
+    logic RegWriteE, RegWriteM, RegWriteW, JumpE, BranchE, ALUOpE;
     logic [1:0] ALUSrcE;
     logic IsJalrE;
     logic [1:0] ResultSrcE, ResultSrcM, ResultSrcW, ALUControlE;
@@ -103,7 +103,7 @@ module datapath #(
 
     // // Branch Prediction
     // logic [32+TAG_SIZE:0] BTB [BUFFER_SIZE-1:0];
-    // logic [$clog2(BUFFER_SIZE)-1:0] buffer_indexF, buffer_indexE;
+    logic [$clog2(BUFFER_SIZE)-1:0] buffer_indexF, buffer_indexE;
 
     // logic [31:0] branch_targetF;
 
@@ -185,7 +185,7 @@ module datapath #(
     assign PCPlus4F = PCPlus4;
 
     assign buffer_indexF = PCF[$clog2(BUFFER_SIZE)+1:2];
-    assign pht_indexF = {1'b0, GHRF[5:0]} ^ buffer_indexF;
+    assign pht_indexF = {2'b0, GHRF[4:0]} ^ buffer_indexF;
     assign branch_targetF = PCF + {{20{InstrF[31]}}, InstrF[7], InstrF[30:25], InstrF[11:8], 1'b0};
     // assign branch_tagF = BTB[buffer_indexF][32+TAG_SIZE-1:32];
     assign branch_validF =(InstrF[6:0] == 7'b1100011);
@@ -346,7 +346,7 @@ module datapath #(
 
 
     assign buffer_indexE = PCE[$clog2(BUFFER_SIZE)+1:2];
-    assign pht_indexE = {1'b0, GHRE[5:0]} ^ buffer_indexE;
+    assign pht_indexE = {2'b0, GHRE[4:0]} ^ buffer_indexE;
 
     logic branch_mispredicted;
     assign branch_mispredicted = HpmBranchTakenE != branch_predictedE;
@@ -386,7 +386,7 @@ module datapath #(
     // PHT (Pattern History Table) - 2-bit saturating counters
     // Prediction: PHT[index][1] = 1 predicts taken, 0 predicts not taken
     // States: 11 (strongly taken), 10 (weakly taken), 01 (weakly not taken), 00 (strongly not taken)
-    always_ff @(posedge clk) begin
+    always_ff @(posedge clk, posedge reset) begin
         if (reset) begin
             for (int i = 0; i < BUFFER_SIZE; i++)
                 PHT[i] <= 2'b01;  // Initialize to weakly not taken
@@ -407,7 +407,7 @@ module datapath #(
     // TIMING NOTE: GHR is updated in Execute stage with the actual branch outcome
     // This creates immediate feedback for the next branch prediction in Fetch stage
     // Width: $clog2(BUFFER_SIZE) bits to match BTB index width for XOR operation
-    always_ff @(posedge clk) begin
+    always_ff @(posedge clk, posedge reset) begin
         if (reset) begin
             GHRF <= '0;
         end else if (BranchE) begin
