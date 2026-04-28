@@ -29,8 +29,10 @@ module riscvsingle (
 // ----------------------------------
 logic [31:0] IEUAdrE;
 logic [31:0] PCPlus4;
-logic      PCSrc;
+logic [1:0] PCSrc;
 logic [31:0] JumpTarget;
+logic JumpPredict;
+logic [31:0] branch_targetF;
 
 logic [7:0]  HpmSignal;
 logic [31:0] CSRReadData;
@@ -45,7 +47,8 @@ ifu ifu(
     .JumpTarget(JumpTarget),
     .JumpPredict(JumpPredict),
     .StallF(StallF),
-    .IEUAdr(IEUAdrE),
+    .NextAdrE(IEUAdrE),
+    .branch_target(branch_targetF),
     .PC(PC),
     .PCPlus4(PCPlus4)
 );
@@ -63,6 +66,7 @@ ieu ieu(
     .JumpPredict(JumpPredict),
     .WriteByteEn(WriteByteEn),
     .IEUAdrE(IEUAdrE),
+    .branch_targetF(branch_targetF),
     .IEUAdrM(IEUAdr),
     .WriteData(WriteData),
     .ReadData(ReadData),

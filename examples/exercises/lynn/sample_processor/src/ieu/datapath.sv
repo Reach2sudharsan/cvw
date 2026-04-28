@@ -2,7 +2,10 @@
 // RISC-V pipelined processor
 // sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
-module datapath(
+module datapath #(
+    parameter BUFFER_SIZE,
+    parameter TAG_SIZE
+    ) (
     input   logic           clk, reset,
     // Control signals from controller
     input   logic           ALUOpD,
@@ -17,18 +20,25 @@ module datapath(
     input   logic           BranchD,
     input   logic           MemWriteD,
     input   logic           MemEnD,
+
+
     // CSR data from privileged unit
     input   logic [31:0]    CSRReadDataM,
+
+
+
     // Inputs from IFU (Instruction Fetch Unit)
     input   logic [31:0]    PC, PCPlus4,
     input   logic [31:0]    Instr,
     // Outputs for memory / loads / stores
-    output  logic [31:0]    IEUAdrE, IEUAdrM, WriteDataM,
+    output  logic [31:0]    NextAdrE, IEUAdrM, WriteDataM,
     output  logic [1:0]     IEUAdrb10M,
     // Branch/jump control
-    output  logic           PCSrcE,
+    output  logic  [1:0]         PCSrcE,
     output  logic [31:0]    JumpTargetD,
     output logic            JumpPredictD,
+    output logic [31:0] branch_targetF,
+
 
     // Instruction in decode stage
     output  logic [31:0]    InstrD,
@@ -70,7 +80,7 @@ module datapath(
     logic [1:0] ALUSrcE;
     logic IsJalrE;
     logic [1:0] ResultSrcE, ResultSrcM, ResultSrcW, ALUControlE;
-    logic [31:0] IEUAdrW;
+    logic [31:0] IEUAdrE, IEUAdrW;
     logic HpmAddE, HpmBranchTakenE, Eq, Lt, Ltu;
     logic SubE;
     logic [7:0] HpmSignalE;
@@ -89,6 +99,31 @@ module datapath(
     logic [31:0] productE;
     logic signed [33:0] P0E, P1E, P2E, P3E;
     logic signed [33:0] P0M, P1M, P2M, P3M;
+
+
+    // Branch Prediction
+    logic [32+TAG_SIZE:0] BTB [BUFFER_SIZE-1:0];
+    logic [$clog2(BUFFER_SIZE)-1:0] buffer_indexF, buffer_indexE;
+
+    // logic [31:0] branch_targetF;
+
+    logic branch_predictedF, branch_predictedD, branch_predictedE;
+    // logic branch_predictedD, branch_predictedE;
+
+    // logic [31:0] branch_targetF;
+    logic [TAG_SIZE-1:0] branch_tagF, branch_tagE;
+    logic branch_validF;
+
+
+    logic [1:0] PHT [BUFFER_SIZE-1:0];
+    logic [$clog2(BUFFER_SIZE)-1:0] pht_indexF, pht_indexE;
+
+    logic [$clog2(BUFFER_SIZE)-1:0] GHRF, GHRD, GHRE;
+
+    //  Have logic to initialize GHRF
+    // Make sure to route target to IFU and change IFU as needed
+
+
 
 
     // ============================================================================
@@ -122,15 +157,51 @@ module datapath(
     // FETCH STAGE
     // ============================================================================
 
+    // ============================================================================
+    // BRANCH PREDICTION LOGIC (G-share Predictor)
+    // ============================================================================
+    // G-share predictor combines:
+    //   - Branch Target Buffer (BTB): stores branch target addresses and tags
+    //   - Pattern History Table (PHT): stores 2-bit branch prediction counters
+    //   - Global History Register (GHR): tracks recent branch outcomes
+    //
+    // PC BIT ALLOCATION (CRITICAL):
+    //   Bits [1:0]   - always 0 (word alignment)
+    //   Bits [N+1:2] - BTB/Buffer index, where N = $clog2(BUFFER_SIZE)
+    //   Bits [N+1+TAG_SIZE-1:N+2] - BTB tag (TAG_SIZE bits for uniqueness)
+    //
+    // For example with BUFFER_SIZE=32 ($clog2=5), TAG_SIZE=16:
+    //   Bits [6:2] (5 bits)  - buffer index (selects one of 32 BTB entries)
+    //   Bits [22:7] (16 bits) - tag for matching (ensures correct entry)
+    //
+    // PHT INDEXING (G-share):
+    //   pht_index = GHR XOR buffer_index
+    //   This combines global history with local address for better prediction
+    // ============================================================================
+
     // Fetch stage assignments
     assign InstrF = Instr;
     assign PCF = PC;
     assign PCPlus4F = PCPlus4;
 
+    assign buffer_indexF = PCF[$clog2(BUFFER_SIZE)+1:2];
+    assign pht_indexF = {3'b0, GHRF[2:0]} ^ buffer_indexF;
+    assign branch_targetF = BTB[buffer_indexF][31:0];
+    assign branch_tagF = BTB[buffer_indexF][32+TAG_SIZE-1:32];
+    assign branch_validF = BTB[buffer_indexF][32+TAG_SIZE];
+
+     assign branch_predictedF = PHT[pht_indexF][1] && branch_validF && (branch_tagF == PCF[$clog2(BUFFER_SIZE)+TAG_SIZE:$clog2(BUFFER_SIZE)+2]) && ~reset;
+
     // Pipeline registers: Fetch to Decode
     flopenr #(32) F2D_instr(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(InstrF), .Q(InstrD));
     flopenr #(32) F2D_PC(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(PCF), .Q(PCD));
     flopenr #(32) F2D_PCPlus4(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(PCPlus4F), .Q(PCPlus4D));
+    flopenr #(1) F2D_branch_predicted(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(branch_predictedF), .Q(branch_predictedD));
+    flopenr #($clog2(BUFFER_SIZE)) F2D_GHR(.clk(clk), .reset(reset), .enable(~StallD), .flush(FlushD), .D(GHRF), .Q(GHRD));
+
+    // Add a new D-stage register for the branch target
+    // flopenr #(32) F2D_branch_target(.clk(clk), .reset(reset), .enable(~StallD),
+    //                                 .flush(FlushD), .D(branch_targetF), .Q(branch_targetD));
 
     // ============================================================================
     // DECODE STAGE
@@ -150,7 +221,9 @@ module datapath(
     assign ALUFunctD =  Funct3D & {3{ALUOpD}};
 
     logic JumpPredictE;
-    assign JumpPredictD = (JumpD & ~PCSrcE & OpD[3]);
+    // assign JumpPredictD = (JumpD & !PCSrcE & OpD[3]);
+    assign JumpPredictD = (JumpD & OpD[3]);
+
     assign JumpTargetD = ImmExtD + PCD;
 
 
@@ -186,6 +259,9 @@ module datapath(
 
     flopenr #(1) D2E_JumpPredict(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(JumpPredictD), .Q(JumpPredictE));
 
+    flopenr #($clog2(BUFFER_SIZE)) D2E_GHR(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(GHRD), .Q(GHRE));
+    flopenr #(1) D2E_branch_predicted(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(branch_predictedD), .Q(branch_predictedE));
+
 
     // Pipeline registers: Decode to Execute (Controller)
     flopenr #(1) D2E_RegWrite(.clk(clk), .reset(reset), .enable(1'b1), .flush(FlushE), .D(RegWriteD), .Q(RegWriteE));
@@ -216,6 +292,7 @@ module datapath(
     mux2 #(32) srcamux(Aout, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(Bout, ImmExtE, ALUSrcE[0], SrcBE);
 
+    // logic [31:0] ALUAdrE;
     // ALU
     alu alu(
         .SrcA(SrcAE),
@@ -246,20 +323,98 @@ module datapath(
     assign HpmAddE = ALUOpE && (Funct3E == 3'b000) && ~SubE;
 
     // Branch taken signal
-    assign HpmBranchTakenE =
-        (BranchE &
-            (
+    logic BranchValidE;
+
+    assign BranchValidE = (
                 Eq & (Funct3E == 3'b000)     |
                 ~Eq & (Funct3E == 3'b001)    |
                 Lt & (Funct3E == 3'b100)     |
                 ~Lt & (Funct3E == 3'b101)    |
                 Ltu & (Funct3E == 3'b110)    |
                 ~Ltu & (Funct3E == 3'b111)
-            )
-        );
+            );
+
+    assign HpmBranchTakenE = BranchE & BranchValidE;
+
+
+
+
+
+    // branch prediction
+
+
+    assign buffer_indexE = PCE[$clog2(BUFFER_SIZE)+1:2];
+    assign pht_indexE = {3'b0, GHRE[2:0]} ^ buffer_indexE;
+
+    logic branch_mispredicted;
+    assign branch_mispredicted = HpmBranchTakenE != branch_predictedE;
 
     // PC source control (jump or taken branch)
-    assign PCSrcE =  (JumpE&(~JumpPredictE)) | HpmBranchTakenE;
+    // assign PCSrcE =  (JumpE&(~JumpPredictE)) | HpmBranchTakenE;
+
+    always_comb begin
+        if ((JumpE&(~JumpPredictE)) | (branch_mispredicted)) PCSrcE = 2'b01;
+        else if (JumpPredictD) PCSrcE = 2'b10;
+        else if (branch_predictedF) PCSrcE = 2'b11;
+        else PCSrcE = 2'b00;
+    end
+
+    // always_comb begin
+
+
+    //     if (branch_mispredicted & BranchValidE) PCSrcE = 1'b1;
+    //     else if (branch_mispredicted & ~BranchValidE)
+    // end
+    mux2 #(32) branchpredictmux(PCPlus4E, IEUAdrE, (branch_mispredicted & BranchValidE) || (JumpE&(~JumpPredictE))  , NextAdrE);
+
+
+    // BTB
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            for (int i = 0; i < BUFFER_SIZE; i++)
+                BTB[i] <= {(33+TAG_SIZE){1'b0}};
+        end else begin
+            if (BranchE) begin
+                // BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+1+TAG_SIZE-1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
+                BTB[buffer_indexE] <= {1'b1, PCE[$clog2(BUFFER_SIZE)+TAG_SIZE+1:$clog2(BUFFER_SIZE)+2], IEUAdrE};
+            end
+        end
+    end
+
+    // PHT (Pattern History Table) - 2-bit saturating counters
+    // Prediction: PHT[index][1] = 1 predicts taken, 0 predicts not taken
+    // States: 11 (strongly taken), 10 (weakly taken), 01 (weakly not taken), 00 (strongly not taken)
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            for (int i = 0; i < BUFFER_SIZE; i++)
+                PHT[i] <= 2'b01;  // Initialize to weakly not taken
+        end else if (BranchE) begin
+            // Always update on branch execution based on actual outcome
+            if (BranchValidE) begin
+                // Branch was taken: increment toward 11 (strongly taken)
+                if (PHT[pht_indexE] != 2'b11) PHT[pht_indexE] <= PHT[pht_indexE] + 1;
+            end else begin
+                // Branch was not taken: decrement toward 00 (strongly not taken)
+                if (PHT[pht_indexE] != 2'b00) PHT[pht_indexE] <= PHT[pht_indexE] - 1;
+            end
+        end
+    end
+
+    // GHR (Global History Register) - shifts in branch outcomes
+    // Updated every cycle when a branch is in Execute stage
+    // TIMING NOTE: GHR is updated in Execute stage with the actual branch outcome
+    // This creates immediate feedback for the next branch prediction in Fetch stage
+    // Width: $clog2(BUFFER_SIZE) bits to match BTB index width for XOR operation
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            GHRF <= '0;
+        end else if (BranchE) begin
+            // Shift left and insert new branch outcome (BranchValidE = taken if 1)
+            GHRF <= {GHRF[$clog2(BUFFER_SIZE)-2:0], BranchValidE};
+        end
+    end
+
+
 
     // Performance monitoring signal assembly
     assign HpmSignalE = {
@@ -269,7 +424,7 @@ module datapath(
         MemWriteE,               // hpm[7]: # of writes to data memory
         RegWriteE,               // hpm[6]: # of writes to RegFile
         HpmBranchTakenE,         // hpm[5]: # of branches taken
-        BranchE,                 // hpm[4]: # of branches eval
+        branch_predictedF,                 // hpm[4]: # original branches, number of branches predicted in Fetch
         HpmAddE                  // hpm[3]: # adds
     };
 

@@ -17,13 +17,14 @@ module ieu(
     output  logic [31:0]    WriteData,
     output  logic [3:0]     WriteByteEn,
     output  logic           MemEn,
-    output  logic         PCSrc,
+    output  logic  [1:0]       PCSrc,
     output  logic [31:0]    JumpTarget,
     output  logic JumpPredict,
     input   logic [31:0]    CSRReadData,
     output  logic [11:0]    csr_addrM,
     output  logic [7:0]     HpmSignal,
-    output  logic           StallF
+    output  logic           StallF,
+    output  logic [31:0]    branch_targetF
 );
 
 // ----------------------------------
@@ -65,7 +66,7 @@ controller c(
 // ----------------------------------
 // Datapath instantiation
 // ----------------------------------
-datapath dp(
+datapath #(256, 16) dp(
     .clk(clk),
     .reset(reset),
     .ALUOpD(ALUOp),
@@ -85,7 +86,7 @@ datapath dp(
     .PCPlus4(PCPlus4),
     .Instr(Instr),
     .ReadDataM(ReadData),
-    .IEUAdrE(IEUAdrE),
+    .NextAdrE(IEUAdrE),
     .IEUAdrM(IEUAdrM),
     .WriteDataM(WriteData),
     .IEUAdrb10M(IEUAdrb10),
@@ -97,7 +98,8 @@ datapath dp(
     .MemEnM(MemEn),
     .HpmSignalM(HpmSignal),
     .StallF(StallF),
-    .csr_addrM(csr_addrM)
+    .csr_addrM(csr_addrM),
+    .branch_targetF(branch_targetF)
 );
 
 endmodule

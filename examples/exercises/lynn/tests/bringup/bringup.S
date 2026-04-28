@@ -110,7 +110,7 @@
     .type  main, @function
 
 main:
-    j jal_test // put which ever test you want --> if you run too many tests, then there will be memory overload
+    j beq_test // put which ever test you want --> if you run too many tests, then there will be memory overload
 
 
 # R-type
@@ -118,8 +118,8 @@ main:
     # return_add_test:
     #     j sub_test
 
-    # return_sub_test:
-    #     j slt_test
+    return_sub_test:
+        j pass
 
     # return_slt_test:
     #     j xor_test
@@ -206,27 +206,27 @@ main:
 
 # # B-type
     return_beq_test:
+        j bne_test
+
+    return_bne_test:
+        j blt_test
+
+    return_blt_test:
+        j bltu_test
+
+    return_bltu_test:
+        j bge_test
+
+    return_bge_test:
+        j bgeu_test
+
+    return_bgeu_test:
         j pass
-
-    # return_bne_test:
-    #     j blt_test
-
-    # return_blt_test:
-    #     j bltu_test
-
-    # return_bltu_test:
-    #     j bge_test
-
-    # return_bge_test:
-    #     j bgeu_test
-
-    # return_bgeu_test:
-    #     j pass
 
 // FAILED
 # J-type
-    return_jal_test:
-        j pass
+    # return_jal_test:
+    #     j pass
 
 # # U-type
     # return_lui_test:
