@@ -5,8 +5,8 @@
 module datapath #(
     parameter BUFFER_SIZE,
     parameter TAG_SIZE,
-    parameter PHT_SIZE = 256, // NEW
-    parameter GHR_WIDTH = 8 // NEW
+    parameter PHT_SIZE = 256,
+    parameter GHR_WIDTH = 8
     ) (
     input   logic           clk, reset,
     // Control signals from controller
