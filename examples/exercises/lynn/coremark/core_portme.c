@@ -20,6 +20,8 @@ Original Author: Shay Gal-on
 #include <stdlib.h>
 #include "coremark.h"
 
+int coremark_warmup = 1;
+
 /* MEM_STATIC: no malloc needed */
 void *portable_malloc(size_t size) { return NULL; }
 void portable_free(void *p) { p = NULL; }
@@ -72,18 +74,36 @@ void stop_time(void) {
     stop_instr_val = read_csr64(instret);
 }
 
+// CORE_TICKS get_time(void) {
+//     unsigned long long elapsed      = stop_time_val  - start_time_val;
+//     unsigned long long instructions = stop_instr_val - start_instr_val;
+//     unsigned long long cm100  = 1000000000ULL / elapsed;
+//     unsigned long long cpi100 = elapsed * 100 / instructions;
+//     ee_printf("   WALLY CoreMark Results (from get_time)\n");
+//     ee_printf("    Elapsed MTIME: %llu\n", elapsed);
+//     ee_printf("    Elapsed MINSTRET: %llu\n", instructions);
+//     ee_printf("    COREMARK/MHz Score: 10,000,000 / %llu = %llu.%02llu \n",
+//               elapsed, cm100 / 100, cm100 % 100);
+//     ee_printf("    CPI: %llu / %llu = %llu.%02llu\n",
+//               elapsed, instructions, cpi100 / 100, cpi100 % 100);
+//     return (CORE_TICKS)elapsed;
+// }
 CORE_TICKS get_time(void) {
     unsigned long long elapsed      = stop_time_val  - start_time_val;
     unsigned long long instructions = stop_instr_val - start_instr_val;
-    unsigned long long cm100  = 1000000000ULL / elapsed;
-    unsigned long long cpi100 = elapsed * 100 / instructions;
-    ee_printf("   WALLY CoreMark Results (from get_time)\n");
-    ee_printf("    Elapsed MTIME: %llu\n", elapsed);
-    ee_printf("    Elapsed MINSTRET: %llu\n", instructions);
-    ee_printf("    COREMARK/MHz Score: 10,000,000 / %llu = %llu.%02llu \n",
-              elapsed, cm100 / 100, cm100 % 100);
-    ee_printf("    CPI: %llu / %llu = %llu.%02llu\n",
-              elapsed, instructions, cpi100 / 100, cpi100 % 100);
+
+    if (!coremark_warmup) {
+        unsigned long long cm100  = 1000000000ULL / elapsed;
+        unsigned long long cpi100 = elapsed * 100 / instructions;
+        ee_printf("   WALLY CoreMark Results (from get_time)\n");
+        ee_printf("    Elapsed MTIME: %llu\n", elapsed);
+        ee_printf("    Elapsed MINSTRET: %llu\n", instructions);
+        ee_printf("    COREMARK/MHz Score: 10,000,000 / %llu = %llu.%02llu \n",
+                  elapsed, cm100 / 100, cm100 % 100);
+        ee_printf("    CPI: %llu / %llu = %llu.%02llu\n",
+                  elapsed, instructions, cpi100 / 100, cpi100 % 100);
+    }
+
     return (CORE_TICKS)elapsed;
 }
 

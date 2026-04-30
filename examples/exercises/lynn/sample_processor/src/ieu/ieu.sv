@@ -66,7 +66,12 @@ controller c(
 // ----------------------------------
 // Datapath instantiation
 // ----------------------------------
-datapath #(128, 16) dp(
+datapath #(
+    .BUFFER_SIZE(32),
+    .TAG_SIZE(10),
+    .PHT_SIZE(64),
+    .GHR_WIDTH(6)
+) dp(
     .clk(clk),
     .reset(reset),
     .ALUOpD(ALUOp),

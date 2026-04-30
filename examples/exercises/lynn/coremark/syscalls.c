@@ -135,33 +135,65 @@ static void init_tls()
   memset(thread_pointer + tdata_size, 0, tbss_size);
 }
 
+// void _init(int cid, int nc)
+// {
+//   init_tls();
+//   thread_entry(cid, nc);
+//   computeStats(0); // TODO uncomment to update counters array
+
+//   // Run coremark
+//   int ret = main(0, 0);
+//   computeStats(1); // TODO uncomment to update counters array
+
+//   // Counter print stats
+
+//   ee_printf("Cycles (rdcycle) %lld\n",              counters[0]);
+//   ee_printf("Instructions Retired (rdinstret) %lld\n", counters[1]);
+
+//   // Lab-required meanings:
+//   ee_printf("Add Instructions (hpm3) %lld\n",      counters[2]);
+//   ee_printf("Branches Evaluated (hpm4) %lld\n",    counters[3]);
+//   ee_printf("Branches Taken (hpm5) %lld\n",        counters[4]);
+
+//   // Implementation-defined (your choice):
+//   ee_printf("Custom Counter 6 (hpm6) %lld\n",      counters[5]);
+//   ee_printf("Custom Counter 7 (hpm7) %lld\n",      counters[6]);
+//   ee_printf("Custom Counter 8 (hpm8) %lld\n",      counters[7]);
+//   ee_printf("Custom Counter 9 (hpm9) %lld\n",      counters[8]);
+//   ee_printf("Custom Counter 10 (hpm10) %lld\n",    counters[9]);
+
+//   ee_printf("Done printing performance counters\n");
+
+//   exit(ret);
+// }
+// Add extern at top of syscalls.c
+extern int coremark_warmup;
+
 void _init(int cid, int nc)
 {
   init_tls();
   thread_entry(cid, nc);
-  computeStats(0); // TODO uncomment to update counters array
 
-  // Run coremark
+  // --- Warmup run: warms branch predictor, suppresses output ---
+  coremark_warmup = 1;
+  main(0, 0);
+
+  // --- Scored run: measure this one ---
+  coremark_warmup = 0;
+  computeStats(0);
   int ret = main(0, 0);
-  computeStats(1); // TODO uncomment to update counters array
+  computeStats(1);
 
-  // Counter print stats
-
-  ee_printf("Cycles (rdcycle) %lld\n",              counters[0]);
-  ee_printf("Instructions Retired (rdinstret) %lld\n", counters[1]);
-
-  // Lab-required meanings:
-  ee_printf("Add Instructions (hpm3) %lld\n",      counters[2]);
-  ee_printf("Branches Evaluated (hpm4) %lld\n",    counters[3]);
-  ee_printf("Branches Taken (hpm5) %lld\n",        counters[4]);
-
-  // Implementation-defined (your choice):
-  ee_printf("Custom Counter 6 (hpm6) %lld\n",      counters[5]);
-  ee_printf("Custom Counter 7 (hpm7) %lld\n",      counters[6]);
-  ee_printf("Custom Counter 8 (hpm8) %lld\n",      counters[7]);
-  ee_printf("Custom Counter 9 (hpm9) %lld\n",      counters[8]);
-  ee_printf("Custom Counter 10 (hpm10) %lld\n",    counters[9]);
-
+  ee_printf("Cycles (rdcycle) %lld\n",                   counters[0]);
+  ee_printf("Instructions Retired (rdinstret) %lld\n",   counters[1]);
+  ee_printf("Add Instructions (hpm3) %lld\n",            counters[2]);
+  ee_printf("Branches Evaluated (hpm4) %lld\n",          counters[3]);
+  ee_printf("Branches Taken (hpm5) %lld\n",              counters[4]);
+  ee_printf("Branch mispredictions %lld\n",              counters[5]);
+  ee_printf("Load instructions %lld\n",                  counters[6]);
+  ee_printf("Store instructions %lld\n",                 counters[7]);
+  ee_printf("Stalls %lld\n",                             counters[8]);
+  ee_printf("Flushes %lld\n",                            counters[9]);
   ee_printf("Done printing performance counters\n");
 
   exit(ret);
