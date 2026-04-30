@@ -1,6 +1,6 @@
 // riscvsingle.sv
 // RISC-V pipelined processor
-// sanadawatan@hmc.edu, sgopalakrishnan@hmc.edu 2026
+// sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
 
 `include "parameters.svh"
 

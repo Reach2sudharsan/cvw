@@ -1,3 +1,7 @@
+// multiply.sv
+// RISC-V pipelined processor
+// sanarayanan@hmc.edu, sgopalakrishnan@hmc.edu 2026
+
 module multiply(
     input  logic [31:0] SrcAE, SrcBE,
     input  logic [1:0]  ALUFunctb01E,
